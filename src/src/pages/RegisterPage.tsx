@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, ShoppingBag } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+// import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 export function RegisterPage() {
@@ -13,9 +14,9 @@ export function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    fullName: '',
+    userName: '',
     email: '',
-    phone: '',
+    address: '',
     password: ''
   });
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,9 +48,9 @@ export function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          <Input label="Full Name" value={formData.fullName} onChange={e => setFormData({
+          <Input label="Full Name" value={formData.userName} onChange={e => setFormData({
           ...formData,
-          fullName: e.target.value
+          userName: e.target.value
         })} placeholder="John Doe" required />
 
           <Input label="Email" type="email" value={formData.email} onChange={e => setFormData({
@@ -57,10 +58,10 @@ export function RegisterPage() {
           email: e.target.value
         })} placeholder="your@email.com" required />
 
-          <Input label="Phone (Optional)" type="tel" value={formData.phone} onChange={e => setFormData({
+          <Input label="Addess (Optional)" type="adress" value={formData.address} onChange={e => setFormData({
           ...formData,
-          phone: e.target.value
-        })} placeholder="+1 234 567 8900" />
+          address: e.target.value
+        })} placeholder="Adress" />
 
           <div className="relative">
             <Input label="Password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={e => setFormData({

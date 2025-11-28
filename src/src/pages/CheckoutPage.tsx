@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
+// import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { CheckoutFormData } from '../types';
 import { Input } from '../components/common/Input';
 import { Button } from '../components/common/Button';
@@ -21,7 +22,7 @@ export function CheckoutPage() {
   const [formData, setFormData] = useState<CheckoutFormData>({
     fullName: user?.fullName || '',
     email: user?.email || '',
-    phone: user?.phone || '',
+    // phone: user?.phone || '',
     address: '',
     city: '',
     postalCode: '',
@@ -60,7 +61,7 @@ export function CheckoutPage() {
     const newErrors: Partial<CheckoutFormData> = {};
     if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
+    // if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
     if (!formData.address.trim()) newErrors.address = 'Address is required';
     if (!formData.city.trim()) newErrors.city = 'City is required';
     if (!formData.postalCode.trim()) newErrors.postalCode = 'Postal code is required';
@@ -103,7 +104,7 @@ export function CheckoutPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input label="Full Name" value={formData.fullName} onChange={e => handleChange('fullName', e.target.value)} error={errors.fullName} placeholder="John Doe" />
                   <Input label="Email" type="email" value={formData.email} onChange={e => handleChange('email', e.target.value)} error={errors.email} placeholder="john@example.com" />
-                  <Input label="Phone Number" type="tel" value={formData.phone} onChange={e => handleChange('phone', e.target.value)} error={errors.phone} placeholder="+1 234 567 8900" className="md:col-span-2" />
+                  {/* <Input label="Phone Number" type="tel" value={formData.phone} onChange={e => handleChange('phone', e.target.value)} error={errors.phone} placeholder="+1 234 567 8900" className="md:col-span-2" /> */}
                 </div>
               </div>
 

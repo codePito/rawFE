@@ -1,6 +1,8 @@
-import React, { useState, createContext, useContext } from 'react';
+import React, { useState, createContext, useContext, useEffect } from 'react';
 import { Product, FilterOptions } from '../types';
-import { mockProducts } from '../api/mockData';
+import productApi from '../api/productApi';
+
+
 interface ProductContextType {
   products: Product[];
   filteredProducts: Product[];
@@ -15,8 +17,21 @@ export function ProductProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [products] = useState<Product[]>(mockProducts);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(mockProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilterdProducts] = useState<Product[]>([]);
+  useEffect(() => {
+  const fectchProducts = async () => {
+    try {
+      const response = await productApi.getAll();
+      setProducts(response.data);
+      setFilterdProducts(response.data);
+    } catch(error) {
+      console.error("Failed to fetch products", error);
+    }
+  };
+  fectchProducts();
+}, []);
+
   const applyFilters = (filters: FilterOptions) => {
     let filtered = [...products];
     if (filters.category) {
@@ -47,7 +62,7 @@ export function ProductProvider({
           break;
       }
     }
-    setFilteredProducts(filtered);
+    setFilterdProducts(filtered);
   };
   const searchProducts = (query: string): Product[] => {
     const lowercaseQuery = query.toLowerCase();

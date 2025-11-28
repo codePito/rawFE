@@ -48,12 +48,12 @@ export function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+          {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
             <p className="font-medium mb-1">Demo Accounts:</p>
             <p>👤 User: user@example.com</p>
             <p>👨‍💼 Admin: admin@example.com</p>
             <p className="text-xs mt-1 text-blue-600">Password: any</p>
-          </div>
+          </div> */}
 
           <Input label="Email" type="email" value={formData.email} onChange={e => setFormData({
           ...formData,

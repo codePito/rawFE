@@ -1,4 +1,5 @@
 import React, { useEffect, useState, createContext, useContext } from 'react';
+import authApi from '../api/authApi';
 export interface User {
   id: string;
   email: string;
@@ -16,7 +17,7 @@ interface RegisterData {
   email: string;
   password: string;
   fullName: string;
-  phone?: string;
+  // phone?: string;
 }
 interface AuthContextType {
   user: User | null;
@@ -49,50 +50,33 @@ export function AuthProvider({
   }, [user]);
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      if (!credentials.email || !credentials.password) {
-        return false;
-      }
-      // Mock: Check if admin email
-      const isAdminEmail = credentials.email.includes('admin');
-      const mockUser: User = {
-        id: Math.random().toString(36).substr(2, 9),
-        email: credentials.email,
-        fullName: credentials.email.split('@')[0],
-        role: isAdminEmail ? 'admin' : 'user',
-        createdAt: new Date()
-      };
-      setUser(mockUser);
+      const response = await authApi.login(credentials);
+      const {user, token} = response.data;
+      localStorage.setItem('access_token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      setUser(user);
       setIsAuthModalOpen(false);
       return true;
     } catch (error) {
+      console.error("Login failed", error)
       return false;
     }
   };
   const register = async (data: RegisterData): Promise<boolean> => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      if (!data.email || !data.password || !data.fullName) {
-        return false;
-      }
-      const mockUser: User = {
-        id: Math.random().toString(36).substr(2, 9),
-        email: data.email,
-        fullName: data.fullName,
-        phone: data.phone,
-        role: 'user',
-        createdAt: new Date()
-      };
-      setUser(mockUser);
+      await authApi.register(data);
       setIsAuthModalOpen(false);
       return true;
     } catch (error) {
+      console.error("Registed failed", error);
       return false;
     }
   };
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('access_token');
   };
   const openAuthModal = () => setIsAuthModalOpen(true);
   const closeAuthModal = () => setIsAuthModalOpen(false);

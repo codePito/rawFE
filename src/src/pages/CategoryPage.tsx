@@ -5,7 +5,7 @@ import { ProductGrid } from '../components/product/ProductGrid';
 import { SortFilter } from '../components/product/SortFilter';
 import { CategoryFilter } from '../components/product/CategoryFilter';
 import { SortOption } from '../types';
-import { categories } from '../api/mockData';
+// import { categories } from '../api/mockData';
 export function CategoryPage() {
   const {
     categoryId
@@ -17,7 +17,7 @@ export function CategoryPage() {
     filteredProducts
   } = useProducts();
   const [sortBy, setSortBy] = useState<SortOption>('popular');
-  const category = categories.find(c => c.id === categoryId);
+  // const category = categories.find(c => c.id === categoryId);
   useEffect(() => {
     applyFilters({
       category: categoryId,
@@ -31,7 +31,7 @@ export function CategoryPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {category?.icon} {category?.name}
+              {/* {category?.icon} {category?.name} */}
             </h1>
             <p className="text-gray-600">
               {filteredProducts.length} products found

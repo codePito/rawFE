@@ -21,8 +21,8 @@ export function AuthModal() {
   const [registerData, setRegisterData] = useState({
     email: '',
     password: '',
-    fullName: '',
-    phone: ''
+    userName: '',
+    address: ''
   });
   if (!isAuthModalOpen) return null;
   const handleLogin = async (e: React.FormEvent) => {
@@ -97,17 +97,17 @@ export function AuthModal() {
                   </button>
                 </p>
               </form> : <form onSubmit={handleRegister} className="space-y-4">
-                <Input label="Full Name" value={registerData.fullName} onChange={e => setRegisterData({
+                <Input label="Full Name" value={registerData.userName} onChange={e => setRegisterData({
               ...registerData,
-              fullName: e.target.value
+              userName: e.target.value
             })} placeholder="John Doe" required />
                 <Input label="Email" type="email" value={registerData.email} onChange={e => setRegisterData({
               ...registerData,
               email: e.target.value
             })} placeholder="your@email.com" required />
-                <Input label="Phone (Optional)" type="tel" value={registerData.phone} onChange={e => setRegisterData({
+                <Input label="Phone (Optional)" type="tel" value={registerData.address} onChange={e => setRegisterData({
               ...registerData,
-              phone: e.target.value
+              address: e.target.value
             })} placeholder="+1 234 567 8900" />
                 <div className="relative">
                   <Input label="Password" type={showPassword ? 'text' : 'password'} value={registerData.password} onChange={e => setRegisterData({
