@@ -34,11 +34,12 @@ export interface Product {
 
 // Order Types
 export interface OrderItem {
-  productId: string;
+  id: number;
+  productId: number;
   productName: string;
-  productImage: string;
+  unitPrice: number;
   quantity: number;
-  price: number;
+  total: number;
 }
 export interface Order {
   id: string;

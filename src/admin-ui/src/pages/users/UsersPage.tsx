@@ -1,20 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; 
 import { Search, UserPlus } from 'lucide-react';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { Table } from '../../components/common/Table';
 import { Badge } from '../../components/common/Badge';
 import { Pagination } from '../../components/common/Pagination';
-import { mockUsers } from '../../services/mockData';
+import authApi from '../../../../src/api/authApi'; 
 import { User } from '../../types';
 import { formatDate } from '../../utils/formatters';
 import { USER_ROLES } from '../../utils/constants';
+
 export function UsersPage() {
+  const [users, setUsers] = useState<User[]>([]); 
+  const [isLoading, setIsLoading] = useState(true); 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const totalPages = Math.ceil(mockUsers.length / itemsPerPage);
+
+  // =========================================================
+  // READ: Hàm fetch users từ API
+  // =========================================================
+  const fetchUsers = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await authApi.getAllUsers(); 
+      const apiData = response.data;
+
+      const rawList = apiData.result || apiData;
+      const userList = Array.isArray(rawList) ? rawList : [];
+
+      // *** ÁNH XẠ DỮ LIỆU SANG CẤU TRÚC FRONTEND ***
+      const mappedUsers: User[] = userList.map((u: any) => {
+        const role = u.role?.toLowerCase() as 'admin' | 'user' | 'seller' || 'user';
+        const fullName = u.userName || 'No Name';
+        const emailPlaceholder = `${fullName.toLowerCase().replace(/\s/g, '') || 'user'}_${u.id}@shophub.com`;
+
+        return {
+          id: u.id?.toString() || u.userName,
+          email: u.email || emailPlaceholder, 
+          fullName: fullName,
+          
+          // FIX MAPPING: Dùng API address gán cho field phone của Frontend
+          phone: u.address || 'N/A', 
+          
+          avatar: u.avatar,
+          role: role, 
+          status: (u.status || 'active') as 'active' | 'locked', 
+          createdAt: u.createdAt ? new Date(u.createdAt) : new Date(),
+          lastLogin: u.lastLogin ? new Date(u.lastLogin) : undefined,
+        };
+      });
+      setUsers(mappedUsers);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers(); // Gọi API khi component mount
+  }, [fetchUsers]);
+
+
+  // Logic phân trang (sử dụng users đã fetch)
+  const totalPages = Math.ceil(users.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedUsers = mockUsers.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedUsers = users.slice(startIndex, startIndex + itemsPerPage);
+  
   const columns = [{
     key: 'user',
     label: 'User',
@@ -24,7 +76,8 @@ export function UsersPage() {
         </div>
   }, {
     key: 'phone',
-    label: 'Phone',
+    // FIX UI: Đổi tiêu đề cột từ "Phone" sang "Address"
+    label: 'Address', 
     render: (user: User) => <span className="text-gray-900">{user.phone}</span>
   }, {
     key: 'role',
@@ -45,6 +98,8 @@ export function UsersPage() {
           {formatDate(user.createdAt)}
         </span>
   }];
+
+
   return <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -65,7 +120,12 @@ export function UsersPage() {
       </Card>
 
       <Card padding={false}>
-        <Table columns={columns} data={paginatedUsers} />
+        {isLoading ? (
+            <div className="p-6 text-center text-gray-500">Đang tải danh sách người dùng...</div>
+        ) : (
+            <Table columns={columns} data={paginatedUsers} />
+        )}
+        
         <div className="px-6 py-4 border-t border-gray-200">
           <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
         </div>

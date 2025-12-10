@@ -59,27 +59,7 @@ export const mockOrderStatusData: OrderStatusData[] = [{
 }];
 
 // Products
-export const mockProducts: Product[] = Array.from({
-  length: 50
-}, (_, i) => ({
-  id: `prod-${i + 1}`,
-  name: `Product ${i + 1}`,
-  description: `Description for product ${i + 1}`,
-  price: Math.floor(Math.random() * 500) + 20,
-  originalPrice: Math.floor(Math.random() * 700) + 50,
-  discount: Math.floor(Math.random() * 50),
-  images: [`https://images.unsplash.com/photo-${1500000000000 + i}?w=400`],
-  category: ['electronics', 'fashion', 'home', 'beauty'][Math.floor(Math.random() * 4)],
-  categoryName: ['Electronics', 'Fashion', 'Home', 'Beauty'][Math.floor(Math.random() * 4)],
-  rating: 3 + Math.random() * 2,
-  reviewCount: Math.floor(Math.random() * 500),
-  soldCount: Math.floor(Math.random() * 5000),
-  stock: Math.floor(Math.random() * 200),
-  sku: `SKU-${1000 + i}`,
-  status: ['active', 'inactive', 'out_of_stock'][Math.floor(Math.random() * 3)] as any,
-  createdAt: new Date(2024, 0, Math.floor(Math.random() * 30) + 1),
-  updatedAt: new Date()
-}));
+export const mockProducts: Product[] = [];
 
 // Orders
 export const mockOrders: Order[] = Array.from({
@@ -130,72 +110,7 @@ export const mockUsers: User[] = Array.from({
 }));
 
 // Categories
-export const mockCategories: Category[] = [{
-  id: 'cat-1',
-  name: 'Electronics',
-  slug: 'electronics',
-  icon: '📱',
-  productCount: 145,
-  status: 'active',
-  createdAt: new Date()
-}, {
-  id: 'cat-2',
-  name: 'Fashion',
-  slug: 'fashion',
-  icon: '👕',
-  productCount: 234,
-  status: 'active',
-  createdAt: new Date()
-}, {
-  id: 'cat-3',
-  name: 'Home & Living',
-  slug: 'home',
-  icon: '🏠',
-  productCount: 189,
-  status: 'active',
-  createdAt: new Date()
-}, {
-  id: 'cat-4',
-  name: 'Beauty',
-  slug: 'beauty',
-  icon: '💄',
-  productCount: 167,
-  status: 'active',
-  createdAt: new Date()
-}, {
-  id: 'cat-5',
-  name: 'Sports',
-  slug: 'sports',
-  icon: '⚽',
-  productCount: 98,
-  status: 'active',
-  createdAt: new Date()
-}, {
-  id: 'cat-6',
-  name: 'Books',
-  slug: 'books',
-  icon: '📚',
-  productCount: 76,
-  status: 'inactive',
-  createdAt: new Date()
-}];
-
-// Sellers
-export const mockSellers: Seller[] = Array.from({
-  length: 30
-}, (_, i) => ({
-  id: `seller-${i + 1}`,
-  businessName: `Store ${i + 1}`,
-  ownerName: `Owner ${i + 1}`,
-  email: `seller${i + 1}@example.com`,
-  phone: '+1 234 567 8900',
-  address: '123 Business St, City',
-  status: ['pending', 'approved', 'rejected', 'suspended'][Math.floor(Math.random() * 4)] as any,
-  totalProducts: Math.floor(Math.random() * 100),
-  totalRevenue: Math.floor(Math.random() * 50000),
-  rating: 3 + Math.random() * 2,
-  createdAt: new Date(2024, 0, Math.floor(Math.random() * 30) + 1)
-}));
+export const mockCategories: Category[] = [];
 
 // Coupons
 export const mockCoupons: Coupon[] = Array.from({

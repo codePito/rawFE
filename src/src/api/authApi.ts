@@ -11,6 +11,8 @@ const authApi = {
 
     register: (body: any) =>
         axiosClient.post("/User/register", body),
+
+    getAllUsers: () => axiosClient.get("/User")
 };
 
 export default authApi;

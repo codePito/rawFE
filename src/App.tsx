@@ -21,6 +21,8 @@ import { DashboardPage } from './admin-ui/src/pages/dashboard/DashboardPage';
 import { ProductsPage as AdminProductsPage } from './admin-ui/src/pages/products/ProductsPage';
 import { OrdersPage } from './admin-ui/src/pages/orders/OrdersPage';
 import { UsersPage } from './admin-ui/src/pages/users/UsersPage';
+import { CategoriesPage } from './admin-ui/src/pages/categories/CategoriesPage';
+
 // Shared Components
 import { CartModal } from './src/components/cart/CartModal';
 import { AuthModal } from './src/components/auth/AuthModal';
@@ -53,9 +55,8 @@ export function App() {
                         <Route path="/products" element={<AdminProductsPage />} />
                         <Route path="/orders" element={<OrdersPage />} />
                         <Route path="/users" element={<UsersPage />} />
-                        <Route path="/categories" element={<div className="text-2xl font-bold">
-                              Categories (Coming Soon)
-                            </div>} />
+                        <Route path="/categories" element={<CategoriesPage />} />
+                        
                         <Route path="/sellers" element={<div className="text-2xl font-bold">
                               Sellers (Coming Soon)
                             </div>} />

@@ -1,3 +1,5 @@
+import { OrderItem } from "../../admin-ui/src/types";
+
 export interface Product {
   id: string;
   name: string;
@@ -41,7 +43,6 @@ export interface User {
   id: string;
   email: string;
   fullName: string;
-  phone?: string;
   createdAt: Date;
 }
 export interface LoginCredentials {
@@ -64,13 +65,19 @@ export interface CheckoutFormData {
   paymentMethod: 'cod' | 'card' | 'ewallet';
 }
 export interface Order {
-  id: string;
-  items: CartItem[];
-  total: number;
-  shippingFee: number;
-  customerInfo: CheckoutFormData;
-  createdAt: Date;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered';
+  id: number;
+  userId: number;
+  createdAt: string;
+  totalAmount: number;
+  currency: string;
+  status: 'Pending' | 'PaymentPeding' | 'Paid' | 'Cancelled' | 'Failed';
+  items: OrderItem[];
+}
+export interface MomoPaymentResponse {
+  orderId: number;
+  payUrl: string;
+  requestId: string;
+  message: string;
 }
 export type SortOption = 'popular' | 'price-asc' | 'price-desc' | 'rating';
 export interface FilterOptions {
@@ -80,3 +87,4 @@ export interface FilterOptions {
   minRating?: number;
   sortBy?: SortOption;
 }
+

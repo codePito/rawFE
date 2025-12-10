@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
@@ -6,14 +6,15 @@ import { Table } from '../../components/common/Table';
 import { Badge } from '../../components/common/Badge';
 import { Pagination } from '../../components/common/Pagination';
 import { AddCategoryModal } from '../../components/modals/AddCategoryModal';
-import { mockCategories } from '../../services/mockData';
+import categoryApi from '../../../../src/api/categoryApi'
 import { Category } from '../../types';
 import { formatDate } from '../../utils/formatters';
 export function CategoriesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [categories, setCategories] = useState(mockCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const itemsPerPage = 10;
   // Filter categories based on search
   const filteredCategories = categories.filter(category => category.name.toLowerCase().includes(searchQuery.toLowerCase()) || category.id.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -21,23 +22,63 @@ export function CategoriesPage() {
   const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedCategories = filteredCategories.slice(startIndex, startIndex + itemsPerPage);
-  const handleAddCategory = (categoryName: string) => {
-    const newCategory: Category = {
-      id: `cat-${Date.now()}`,
-      name: categoryName,
-      slug: categoryName.toLowerCase().replace(/\s+/g, '-'),
-      icon: '📦',
-      productCount: 0,
-      status: 'active',
-      createdAt: new Date()
-    };
-    setCategories([newCategory, ...categories]);
-    alert('Category added successfully!');
+
+  const fetchCategories = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await categoryApi.getAll();
+      const rawList  = response.data.result || response.data || [];
+
+      const mappedCategories : Category[] = rawList.map((c: any) => ({
+        id: c.id?.toString() || c.Id?.toString() || c.name,
+        name: c.name || 'Unnamed Category',
+        slug: c.slug || c.name.toLowerCase().replace(/\s+/g, '-'),
+        icon: c.icon || '📦',
+        productCount: c.productCount || 0,
+        status: (c.status || 'active') as any,
+        createdAt: c.createdAt ? new Date(c.createdAt) : new Date(),
+      }));
+      setCategories(mappedCategories);
+    } catch(error) {
+      console.error("Failed to fetch categories", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  const handleAddCategory = async (categoryName: string) => {
+    try {
+      const slug = categoryName.toLowerCase().replace(/\s+/g, '-');
+
+      await categoryApi.create({
+        name: categoryName,
+        slug: slug,
+        icon: '📦',
+        status: 'active'
+      });
+      await fetchCategories();
+      return true;
+    } catch(error) {
+      console.error("Failed to add category:", error);
+      return false;
+    }
   };
-  const handleDeleteCategory = (categoryId: string) => {
+
+
+  const handleDeleteCategory = async (categoryId: string) => {
     if (window.confirm('Are you sure you want to delete this category?')) {
-      setCategories(categories.filter(cat => cat.id !== categoryId));
-      alert('Category deleted successfully!');
+      try {
+        await categoryApi.delete(categoryId);
+        await fetchCategories();
+        alert('Category deleted successfully!');
+      } catch(error) {
+        console.error("Failed to deleted category:", error);
+        alert('Failed to deleted category');
+      }
     }
   };
   const columns = [{
@@ -81,7 +122,10 @@ export function CategoriesPage() {
           <button onClick={() => alert('Edit functionality coming soon!')} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="Edit category">
             <Edit className="w-4 h-4 text-gray-600" />
           </button>
-          <button onClick={() => handleDeleteCategory(category.id)} className="p-2 hover:bg-red-50 rounded-lg transition-colors" title="Delete category">
+          <button onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteCategory(category.id)
+          }} className="p-2 hover:bg-red-50 rounded-lg transition-colors" title="Delete category">
             <Trash2 className="w-4 h-4 text-red-600" />
           </button>
         </div>
@@ -160,7 +204,11 @@ export function CategoriesPage() {
 
       {/* Categories Table */}
       <Card padding={false}>
-        <Table columns={columns} data={paginatedCategories} />
+        {isLoading ? (
+          <div className="p-6 text-center text-gray-500">Loading Categories...</div>
+        ) : (
+          <Table columns={columns} data={paginatedCategories}/>
+        )}
         <div className="px-6 py-4 border-t border-gray-200">
           <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
         </div>

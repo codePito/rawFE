@@ -27,9 +27,11 @@ useEffect(() => {
       const response = await productApi.getAll();
       const apiData = response.data;
 
+      const rawList = apiData.result || apiData
+
       // 1. Lấy mảng sản phẩm từ thuộc tính "result"
       // Nếu apiData.result undefined thì fallback về mảng rỗng
-      const productList = apiData.result || [];
+      const productList = Array.isArray(rawList) ? rawList : [];
 
       // 2. Map dữ liệu từ cấu trúc API sang cấu trúc Frontend
       const mappedData = productList.map((p: any) => ({
