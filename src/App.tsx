@@ -26,6 +26,8 @@ import { CategoriesPage } from './admin-ui/src/pages/categories/CategoriesPage';
 // Shared Components
 import { CartModal } from './src/components/cart/CartModal';
 import { AuthModal } from './src/components/auth/AuthModal';
+import { PaymentResultPage } from './src/pages/PaymentResultPage';
+import { OrderHistoryPage } from './src/pages/OrderHistoryPage';
 export function App() {
   return <BrowserRouter>
       <AuthProvider>
@@ -44,6 +46,8 @@ export function App() {
                       <Route path="/product/:productId" element={<ProductDetailPage />} />
                       <Route path="/checkout" element={<CheckoutPage />} />
                       <Route path="/search" element={<SearchPage />} />
+                      <Route path="/payment-result" element={<PaymentResultPage/>} />
+                      <Route path="orders" element={<OrderHistoryPage/>}/>
                     </Routes>
                   </UserLayout>} />
 

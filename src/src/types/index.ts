@@ -1,4 +1,4 @@
-import { OrderItem } from "../../admin-ui/src/types";
+// import { OrderItem } from "../../admin-ui/src/types";
 
 export interface Product {
   id: string;
@@ -73,6 +73,31 @@ export interface Order {
   status: 'Pending' | 'PaymentPeding' | 'Paid' | 'Cancelled' | 'Failed';
   items: OrderItem[];
 }
+export interface OrderItem {
+  id: number;
+  productId: number;
+  productName: string;
+  unitPrice: number;
+  quantity: number;
+  total: number;
+}
+export interface OrderItemRequest {
+  productId: number;
+  quantity: number;
+}
+
+export interface OrderRequest {
+  // userId: number;
+  items: OrderItemRequest[];
+  currency: string;
+}
+
+export interface MomoPaymentRequest {
+  orderId: number;
+  returnUrl: string;
+  notifyUrl: string;
+}
+
 export interface MomoPaymentResponse {
   orderId: number;
   payUrl: string;
