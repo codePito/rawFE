@@ -3,22 +3,22 @@ import { Modal } from '../common/Modal';
 import { Input } from '../common/Input';
 import { Textarea } from '../common/Textarea';
 import { Select } from '../common/Select';
-import { ImageUpload } from '../common/ImageUpload';
-import categoryApi from '../../../../src/api/categoryApi'; 
+import categoryApi from '../../../../src/api/categoryApi';
 import { Category } from '../../types';
 import { Loader2 } from 'lucide-react';
+import AdminProductImageManager from '../../pages/products/AdminProductImageManager';
+
+/* ================= BUTTON ================= */
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: 'primary' | 'secondary';
   loading?: boolean;
   fullWidth?: boolean;
   children: React.ReactNode;
 }
 
-export function Button({
+function Button({
   variant = 'primary',
-  size = 'md',
   loading = false,
   fullWidth = false,
   className = '',
@@ -26,24 +26,16 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps) {
-  const baseStyles = 'font-medium rounded-lg transition-colors duration-200 inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed';
+  const base =
+    'rounded-lg font-medium transition inline-flex items-center justify-center disabled:opacity-50';
   const variants = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800',
-    secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400',
-    danger: 'bg-red-600 text-white hover:bg-red-700 active:bg-red-800',
-    ghost: 'text-gray-700 hover:bg-gray-100 active:bg-gray-200'
+    primary: 'bg-primary-600 text-white hover:bg-primary-700',
+    secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300',
   };
-  const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg'
-  };
-
-  const widthClass = fullWidth ? 'w-full' : '';
 
   return (
-    <button 
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${widthClass} ${className}`}
+    <button
+      className={`${base} ${variants[variant]} ${fullWidth ? 'w-full' : ''} px-4 py-2 ${className}`}
       disabled={disabled || loading}
       {...props}
     >
@@ -53,10 +45,12 @@ export function Button({
   );
 }
 
+/* ================= TYPES ================= */
+
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (product: any) => Promise<boolean>; 
+  onAdd: (product: any) => Promise<number | null>; // ⚠️ trả về productId
 }
 
 interface ProductFormData {
@@ -66,7 +60,6 @@ interface ProductFormData {
   category: string;
   stockQuantity: string;
   lowStockThreshold: string;
-  images: string[];
 }
 
 interface ProductFormErrors {
@@ -76,8 +69,9 @@ interface ProductFormErrors {
   category?: string;
   stockQuantity?: string;
   lowStockThreshold?: string;
-  images?: string;
 }
+
+/* ================= COMPONENT ================= */
 
 export function AddProductModal({ isOpen, onClose, onAdd }: AddProductModalProps) {
   const [formData, setFormData] = useState<ProductFormData>({
@@ -87,99 +81,83 @@ export function AddProductModal({ isOpen, onClose, onAdd }: AddProductModalProps
     category: '',
     stockQuantity: '100',
     lowStockThreshold: '5',
-    images: []
   });
 
   const [errors, setErrors] = useState<ProductFormErrors>({});
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [createdProductId, setCreatedProductId] = useState<number | null>(null);
+
+  /* ===== FETCH CATEGORY ===== */
 
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await categoryApi.getAll();
-      const rawList = response.data.result || response.data || [];
-      
-      const mappedCategories: Category[] = rawList.map((c: any) => ({
-        id: c.id?.toString() || c.Id?.toString() || c.name,
-        name: c.name || 'Unnamed Category',
-        slug: c.slug || '',
-        icon: c.icon || '📦',
-        productCount: c.productCount || 0, 
-        status: (c.status || 'active') as any,
-        createdAt: c.createdAt ? new Date(c.createdAt) : new Date(),
-      }));
-      setCategories(mappedCategories);
-    } catch (error) {
-      console.error("Failed to fetch categories in modal:", error);
+      const res = await categoryApi.getAll();
+      const list = res.data.result || res.data || [];
+      setCategories(
+        list.map((c: any) => ({
+          id: c.id?.toString(),
+          name: c.name,
+          slug: c.slug,
+          icon: c.icon || '📦',
+          productCount: c.productCount || 0,
+          status: c.status,
+          createdAt: new Date(),
+        }))
+      );
+    } catch (e) {
+      console.error(e);
     }
   }, []);
 
   useEffect(() => {
-    if (isOpen) {
-      fetchCategories();
-    }
+    if (isOpen) fetchCategories();
   }, [isOpen, fetchCategories]);
 
-  const validateForm = (): boolean => {
-    const newErrors: ProductFormErrors = {};
-    
-    if (!formData.name.trim()) {
-      newErrors.name = 'Product name is required';
-    }
-    if (!formData.description.trim()) {
-      newErrors.description = 'Description is required';
-    }
-    if (!formData.price || parseFloat(formData.price) <= 0) {
-      newErrors.price = 'Valid price is required';
-    }
-    if (!formData.category) {
-      newErrors.category = 'Category is required';
-    }
-    if (!formData.stockQuantity || parseInt(formData.stockQuantity) < 0) {
-      newErrors.stockQuantity = 'Valid stock quantity is required';
-    }
-    if (!formData.lowStockThreshold || parseInt(formData.lowStockThreshold) < 0) {
-      newErrors.lowStockThreshold = 'Valid low stock threshold is required';
-    }
-    if (formData.images.length === 0) {
-      newErrors.images = 'At least one image is required';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  /* ===== VALIDATE ===== */
+
+  const validateForm = () => {
+    const e: ProductFormErrors = {};
+    if (!formData.name) e.name = 'Required';
+    if (!formData.description) e.description = 'Required';
+    if (!formData.price || Number(formData.price) <= 0) e.price = 'Invalid';
+    if (!formData.category) e.category = 'Required';
+    if (Number(formData.stockQuantity) < 0) e.stockQuantity = 'Invalid';
+    if (Number(formData.lowStockThreshold) < 0) e.lowStockThreshold = 'Invalid';
+
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
+
+  /* ===== SUBMIT ===== */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-    
-    setLoading(true);
-    
-    // ✅ MAP IMAGES THEO CẤU TRÚC MỚI - Backend chờ Array<{FilePath, IsPrimary}>
-    const mappedImages = formData.images.map((url, index) => ({
-      FilePath: url,
-      IsPrimary: index === 0, // Ảnh đầu tiên là primary
-    }));
 
-    const productPayload = {
+    setLoading(true);
+
+    const payload = {
       name: formData.name,
       description: formData.description,
-      price: parseFloat(formData.price),
+      price: Number(formData.price),
       categoryId: formData.category,
-      stockQuantity: parseInt(formData.stockQuantity),
-      lowStockThreshold: parseInt(formData.lowStockThreshold),
-      images: mappedImages, // ✅ Gửi đúng cấu trúc Backend chờ
+      stockQuantity: Number(formData.stockQuantity),
+      lowStockThreshold: Number(formData.lowStockThreshold),
     };
-    
-    const success = await onAdd(productPayload);
-    setLoading(false);
-    
-    if (success) {
-      handleClose();
+
+    try {
+      const productId = await onAdd(payload);
+      if (productId) setCreatedProductId(productId);
+    } finally {
+      setLoading(false);
     }
   };
 
+  /* ===== CLOSE ===== */
+
   const handleClose = () => {
+    setCreatedProductId(null);
     setFormData({
       name: '',
       description: '',
@@ -187,129 +165,100 @@ export function AddProductModal({ isOpen, onClose, onAdd }: AddProductModalProps
       category: '',
       stockQuantity: '100',
       lowStockThreshold: '5',
-      images: []
     });
     setErrors({});
     onClose();
   };
 
-  const categoryOptions = categories
-    .filter(cat => cat.status === 'active')
-    .map(cat => ({
-      value: cat.id,
-      label: cat.name
-    }));
+  const categoryOptions = categories.map(c => ({
+    value: c.id,
+    label: c.name,
+  }));
+
+  /* ================= RENDER ================= */
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Add New Product" size="lg">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Product Name */}
-        <Input 
-          label="Product Name"
-          value={formData.name}
-          onChange={e => setFormData({ ...formData, name: e.target.value })}
-          placeholder="Enter product name"
-          error={errors.name}
-          required
-        />
-
-        {/* Description */}
-        <Textarea 
-          label="Description"
-          value={formData.description}
-          onChange={e => setFormData({ ...formData, description: e.target.value })}
-          placeholder="Enter product description"
-          rows={4}
-          error={errors.description}
-          required
-        />
-
-        {/* Price */}
-        <Input 
-          label="Price"
-          type="number"
-          step="0.01"
-          min="0"
-          value={formData.price}
-          onChange={e => setFormData({ ...formData, price: e.target.value })}
-          placeholder="0.00"
-          error={errors.price}
-          required
-        />
-
-        {/* Stock Quantity */}
-        <Input 
-          label="Stock Quantity"
-          type="number"
-          min="0"
-          value={formData.stockQuantity}
-          onChange={e => setFormData({ ...formData, stockQuantity: e.target.value })}
-          placeholder="100"
-          error={errors.stockQuantity}
-          required
-        />
-
-        {/* Low Stock Threshold */}
-        <Input 
-          label="Low Stock Threshold"
-          type="number"
-          min="0"
-          value={formData.lowStockThreshold}
-          onChange={e => setFormData({ ...formData, lowStockThreshold: e.target.value })}
-          placeholder="5"
-          error={errors.lowStockThreshold}
-          helperText="Alert when stock falls below this number"
-          required
-        />
-
-        {/* Category */}
-        <div>
-          <Select 
-            label="Category" 
-            value={formData.category} 
-            onChange={value => setFormData({ ...formData, category: value })} 
-            options={categoryOptions}
-            placeholder="Select a category" 
-            error={errors.category} 
-            required 
+      {!createdProductId ? (
+        /* ===== STEP 1 ===== */
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="Product Name"
+            value={formData.name}
+            onChange={e => setFormData({ ...formData, name: e.target.value })}
+            error={errors.name}
+            required
           />
-          <p className="mt-1 text-sm text-gray-500">
-            Manage categories in the{' '}
-            <a href="/admin/categories" className="text-primary-600 hover:text-primary-700 font-medium">
-              Categories page
-            </a>
-          </p>
-        </div>
 
-        {/* Images */}
-        <ImageUpload 
-          label="Product Images"
-          value={formData.images}
-          onChange={images => setFormData({ ...formData, images })}
-          maxImages={5}
-          error={errors.images}
-        />
+          <Textarea
+            label="Description"
+            value={formData.description}
+            onChange={e => setFormData({ ...formData, description: e.target.value })}
+            error={errors.description}
+            required
+          />
 
-        {/* Actions */}
-        <div className="flex gap-3 pt-4 border-t">
-          <Button 
-            type="button" 
-            variant="secondary" 
-            onClick={handleClose} 
-            fullWidth
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
-            variant="primary" 
-            loading={loading} 
-            fullWidth
-          >
-            Add Product
-          </Button>
+          <Input
+            label="Price"
+            type="number"
+            value={formData.price}
+            onChange={e => setFormData({ ...formData, price: e.target.value })}
+            error={errors.price}
+            required
+          />
+
+          <Input
+            label="Stock Quantity"
+            type="number"
+            value={formData.stockQuantity}
+            onChange={e => setFormData({ ...formData, stockQuantity: e.target.value })}
+            error={errors.stockQuantity}
+            required
+          />
+
+          <Input
+            label="Low Stock Threshold"
+            type="number"
+            value={formData.lowStockThreshold}
+            onChange={e =>
+              setFormData({ ...formData, lowStockThreshold: e.target.value })
+            }
+            error={errors.lowStockThreshold}
+            required
+          />
+
+          <Select
+            label="Category"
+            value={formData.category}
+            onChange={v => setFormData({ ...formData, category: v })}
+            options={categoryOptions}
+            error={errors.category}
+            required
+          />
+
+          <div className="flex gap-3 pt-4 border-t">
+            <Button type="button" variant="secondary" onClick={handleClose} fullWidth>
+              Cancel
+            </Button>
+            <Button type="submit" loading={loading} fullWidth>
+              Create & Add Images
+            </Button>
+          </div>
+        </form>
+      ) : (
+        /* ===== STEP 2 ===== */
+        <div className="space-y-4 animate-fade-in">
+          <div className="p-3 bg-green-50 text-green-700 rounded">
+            Product created successfully. Upload images below.
+          </div>
+
+          <AdminProductImageManager productId={createdProductId} />
+
+          <div className="flex justify-end pt-4 border-t">
+            <Button onClick={handleClose}>Finish</Button>
+          </div>
         </div>
-      </form>
+      )}
     </Modal>
   );
 }

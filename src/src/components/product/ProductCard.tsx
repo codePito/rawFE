@@ -8,6 +8,7 @@ import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import ProductThumbnail from './ProductThumbnail';
 
 interface ProductCardProps {
   product: Product;
@@ -43,12 +44,12 @@ export function ProductCard({ product }: ProductCardProps) {
       className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col"
     >
       <div className="relative aspect-square overflow-hidden bg-gray-100">
-        <img
-          src={product.images[0]}
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          loading="lazy"
-        />
+        <div className="h-48 w-full overflow-hidden">
+                <ProductThumbnail 
+                    productId={Number(product.id)} 
+                    className="hover:scale-110 transition-transform duration-300" 
+                />
+        </div>
         
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">

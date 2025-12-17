@@ -8,6 +8,7 @@ import { Button } from '../components/common/Button';
 import { Rating } from '../components/common/Rating';
 import { Badge } from '../components/common/Badge';
 import { formatCurrency, formatNumber } from '../utils/formatters';
+import ProductGallery from '../components/product/ProductGallery';
 
 export function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>();
@@ -71,36 +72,12 @@ export function ProductDetailPage() {
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-8">
             {/* Image Gallery */}
-            <div>
-              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
-                <img
-                  src={product.images[selectedImage]}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              {product.images.length > 1 && (
-                <div className="grid grid-cols-4 gap-2">
-                  {product.images.map((image, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedImage(index)}
-                      className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                        selectedImage === index
-                          ? 'border-orange-500'
-                          : 'border-transparent hover:border-gray-300'
-                      }`}
-                    >
-                      <img
-                        src={image}
-                        alt={`${product.name} ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <ProductGallery productId={Number(product.id)} />
+    <div className="product-info">
+        {/* Thông tin tên, giá, nút mua hàng... */}
+    </div>
+</div>
 
             {/* Product Info */}
             <div>

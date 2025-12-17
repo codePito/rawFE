@@ -80,18 +80,23 @@ export function ProductsPage() {
     fetchProducts();
   }, [fetchProducts]);
 
-  const handleAddProduct = async (productData: any): Promise<boolean> => {
-    try {
-      await productApi.create(productData);
-      await fetchProducts();
-      alert('Product added successfully!');
-      return true;
-    } catch (error) {
-      console.error("Failed to add product:", error);
-      alert('Failed to add product');
-      return false;
-    }
-  };
+  const handleAddProduct = async (
+  productData: any
+): Promise<number | null> => {
+  try {
+    const res = await productApi.create(productData);
+
+    // TÙY CẤU TRÚC RESPONSE BACKEND
+    return (
+      res?.data?.id ??
+      res?.data?.result?.id ??
+      null
+    );
+  } catch (error) {
+    console.error('Create product failed', error);
+    return null;
+  }
+};
 
   const handleDeleteProduct = async (productId: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
