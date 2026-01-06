@@ -95,8 +95,6 @@ export function OrderHistoryPage() {
             const paymentsRes = await paymentApi.getByOrderId(orderId);
             const payments = paymentsRes.data;
             
-            console.log('Payments response:', payments);
-            
             if (!payments || payments.length === 0) {
                 alert('Không tìm thấy thông tin thanh toán');
                 return;
@@ -107,23 +105,17 @@ export function OrderHistoryPage() {
                 ? payments[payments.length - 1] 
                 : payments;
 
-            console.log('Latest payment:', latestPayment);
-
             // Gọi retry
             const res = await paymentApi.retryPayment(latestPayment.id);
-            
-            console.log('Retry response:', res.data);
             
             // Redirect đến trang thanh toán MoMo
             const payUrl = res.data?.payUrl || res.data?.PayUrl;
             if (payUrl) {
                 window.location.href = payUrl;
             } else {
-                console.error('No payUrl in response:', res.data);
                 alert('Không thể tạo link thanh toán. Vui lòng thử lại.');
             }
         } catch (err: any) {
-            console.error('Retry payment failed:', err);
             alert(err?.response?.data?.message || 'Thanh toán lại thất bại. Vui lòng thử lại.');
         } finally {
             setRetryingOrderId(null);

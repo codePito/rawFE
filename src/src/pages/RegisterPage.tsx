@@ -34,10 +34,6 @@ export function RegisterPage() {
     } catch (err: any) {
       setLoading(false);
       
-      console.log('Registration error:', err);
-      console.log('Error response:', err.response);
-      console.log('Error data:', err.response?.data);
-      
       // Handle validation errors from backend
       if (err.response?.status === 400 && err.response?.data?.errors) {
         const errors = err.response.data.errors;
@@ -46,8 +42,6 @@ export function RegisterPage() {
         // Count total errors
         const errorCount = Object.keys(errors).length;
         setError(`Please fix ${errorCount} validation error${errorCount > 1 ? 's' : ''} below`);
-        
-        console.log('Validation errors:', errors);
       } else if (err.response?.data?.title) {
         // Handle other error formats
         setError(err.response.data.title);

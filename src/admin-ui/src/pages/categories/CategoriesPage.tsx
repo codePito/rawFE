@@ -65,8 +65,6 @@ export function CategoriesPage() {
 
     const handleUpdateCategory = async (id: string, data: any): Promise<boolean> => {
         try {
-            console.log('Updating category:', { id, data });
-            
             // Ensure id in body matches URL id
             const payload = {
                 ...data,
@@ -77,7 +75,6 @@ export function CategoriesPage() {
             await fetchCategories();
             return true;
         } catch (e: any) {
-            console.error('Update category error:', e);
             console.error('Error response:', e?.response?.data);
             alert(e?.response?.data?.message || e?.response?.data?.title || 'Update failed');
             return false;

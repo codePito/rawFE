@@ -32,7 +32,7 @@ export function HomePage() {
             <p className="text-xl mb-8 text-primary-50">
               Khám phá những ưu đãi tuyệt vời cho sản phẩm chất lượng. Miễn phí vận chuyển cho đơn hàng trên 500.000đ!
             </p>
-            <Link to="/category/electronics" className="inline-flex items-center gap-2 bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors">
+            <Link to="/" className="inline-flex items-center gap-2 bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors">
               Mua Ngay
               <ArrowRight className="w-5 h-5" />
             </Link>

@@ -73,8 +73,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
         try {
             const response = await cartApi.getCart();
-            console.log('Cart API response:', response.data);
-            console.log('Cart items detail:', JSON.stringify(response.data.items, null, 2));
             const backendItems = response.data.items || [];
 
             // Map dữ liệu Backend -> Frontend
@@ -128,9 +126,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (!isAuthenticated) return false;
 
         try {
-            console.log('Adding to cart:', { productId: product.id, quantity, variantId, variantInfo });
-            const response = await cartApi.addToCart(product.id, quantity, variantId);
-            console.log('Add to cart response:', response.data);
+            await cartApi.addToCart(product.id, quantity, variantId);
             await fetchCart();
             setIsCartOpen(true);
             return true;

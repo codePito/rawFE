@@ -105,8 +105,6 @@ export function AuthProvider({
         
         if (!decoded) return false;
 
-        console.log('Decoded JWT token:', decoded);
-
         // === ÁNH XẠ DỮ LIỆU TỪ JWT TOKEN ===
         const role = decoded[ROLE_CLAIM_KEY] || decoded.role;
         const email = decoded[EMAIL_CLAIM_KEY] || decoded.email || credentials.email;
@@ -140,8 +138,6 @@ export function AuthProvider({
             avatar: decoded.avatar,
             createdAt: createdAtDate
         };
-
-        console.log('User info from JWT token:', userInfo);
 
         setUser(userInfo);
         

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Heart, Share2, Minus, Plus, ChevronLeft, AlertTriangle } from 'lucide-react';
+import { Heart, Share2, Minus, Plus, ChevronLeft, AlertTriangle } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,10 +17,9 @@ export function ProductDetailPage() {
   const navigate = useNavigate();
   const { getProductById } = useProducts();
   const { addToCart } = useCart();
-  const { openAuthModal } = useAuth();
+  const { openAuthModal, isAuthenticated } = useAuth();
 
   const [quantity, setQuantity] = useState(1);
-  const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariantOption | null>(null);
 
   const product = getProductById(productId!);
@@ -36,11 +35,13 @@ export function ProductDetailPage() {
     );
   }
 
-  const handleAddToCart = () => {
-    // Debug log
-    console.log('Product:', product);
-    console.log('Product variants:', product.variants);
-    console.log('Selected variant:', selectedVariant);
+  const handleAddToCart = async () => {
+    // Kiểm tra đăng nhập trước
+    if (!isAuthenticated) {
+      alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng');
+      openAuthModal();
+      return;
+    }
     
     // Kiểm tra nếu có variants thì phải chọn
     if (product.variants?.hasVariants && !selectedVariant) {
@@ -75,10 +76,7 @@ export function ProductDetailPage() {
       variantInfo = parts.join(', ');
     }
 
-    const success = addToCart(product, quantity, selectedVariant?.id, variantInfo);
-    if (!success) {
-      openAuthModal();
-    }
+    await addToCart(product, quantity, selectedVariant?.id, variantInfo);
   };
 
   // Tính stock và giá dựa trên variant được chọn

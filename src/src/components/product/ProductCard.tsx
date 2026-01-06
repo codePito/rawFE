@@ -16,10 +16,17 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
-  const { openAuthModal } = useAuth();
+  const { openAuthModal, isAuthenticated } = useAuth();
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // Kiểm tra đăng nhập trước
+    if (!isAuthenticated) {
+      alert('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng');
+      openAuthModal();
+      return;
+    }
     
     // Kiểm tra stock trước khi thêm vào giỏ
     if (product.isOutOfStock) {
@@ -32,10 +39,7 @@ export function ProductCard({ product }: ProductCardProps) {
       return;
     }
     
-    const success = addToCart(product);
-    if (!success) {
-      openAuthModal();
-    }
+    await addToCart(product);
   };
 
   return (

@@ -57,7 +57,6 @@ export function UserProfilePage() {
                 }
             } catch (err) {
                 // Không có avatar → dùng default
-                console.log('No avatar found, using default');
             }
         };
 

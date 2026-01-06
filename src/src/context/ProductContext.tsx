@@ -27,9 +27,6 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
       const rawList = apiData.result || apiData;
       const productList = Array.isArray(rawList) ? rawList : [];
 
-      console.log('📦 Products fetched from API:', productList.length);
-      console.log('📦 Raw API response:', apiData);
-
       // Map dữ liệu với hệ thống Image mới
       const mappedData: Product[] = productList.map((p: any) => ({
         id: p.id ? p.id.toString() : Math.random().toString(),
@@ -85,9 +82,6 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         
         specifications: p.specifications || {}
       }));
-
-      console.log('✅ Products mapped:', mappedData.length);
-      console.log('✅ Sample product:', mappedData[0]);
 
       setProducts(mappedData);
       setFilteredProducts(mappedData);

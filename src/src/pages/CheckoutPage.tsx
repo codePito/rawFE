@@ -84,13 +84,9 @@ export function CheckoutPage() {
         }))
       };
 
-      console.log("Order Payload:", orderPayload);
-
-
       // 2. Gọi API tạo đơn
       const orderRes = await orderApi.create(orderPayload);
       const newOrder = orderRes.data; // Backend trả về OrderResponse (có Id)
-      console.log("Order Created:", newOrder);
 
       // 3. Xử lý thanh toán
       if (paymentMethod === 'ewallet') {

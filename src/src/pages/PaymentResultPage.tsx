@@ -38,37 +38,30 @@ export function PaymentResultPage() {
             
             try {
                 await paymentApi.confirmPayment(parseInt(orderId), resultCodeNum);
-                console.log('Payment confirmed successfully');
             } catch (confirmError) {
                 // Không block flow nếu confirm fail (có thể đã được IPN xử lý)
-                console.warn('Confirm payment failed (may already be processed):', confirmError);
             }
 
-            // Bước 2: ✅ Verify Order status từ backend
+            // Bước 2: Verify Order status từ backend
             try {
                 const orderRes = await orderApi.getById(orderId);
                 const order = orderRes.data;
                 
-                console.log('Order status:', order.status);
-                
-                // ✅ Chỉ clear cart nếu Order.Status = Paid (2)
+                // Chỉ clear cart nếu Order.Status = Paid (2)
                 if (order.status === 2) { // OrderStatus.Paid = 2
                     try {
                         // Gọi API backend để xóa cart trong DB
                         await cartApi.clearCart();
-                        console.log('Cart cleared successfully');
                     } catch (clearError) {
-                        console.warn('Clear cart failed (may already be cleared):', clearError);
+                        // Cart có thể đã được xóa
                     }
                     // Xóa cart state local
                     clearCart();
                     setPaymentSuccess(true);
                 } else {
-                    console.log('Order not paid yet, cart not cleared');
                     setPaymentSuccess(false);
                 }
             } catch (orderError) {
-                console.error('Failed to fetch order:', orderError);
                 // Fallback: Nếu không lấy được order, dùng resultCode
                 const isSuccess = resultCodeNum === 0;
                 if (isSuccess) {
@@ -77,12 +70,12 @@ export function PaymentResultPage() {
                         clearCart();
                         setPaymentSuccess(true);
                     } catch (clearError) {
-                        console.warn('Clear cart failed:', clearError);
+                        // Cart có thể đã được xóa
                     }
                 }
             }
         } catch (error) {
-            console.error("Failed to process payment result", error);
+            // Lỗi xử lý kết quả thanh toán
         } finally {
             setLoading(false);
         }
