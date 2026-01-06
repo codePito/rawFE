@@ -64,19 +64,19 @@ export function RegisterPage() {
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
             <ShoppingBag className="w-8 h-8 text-primary-600" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">Join ShopHub</h1>
+          <h1 className="text-3xl font-bold mb-2">Tham Gia ShopHub</h1>
           <p className="text-primary-100">
-            Create your account to start shopping
+            Tạo tài khoản để bắt đầu mua sắm
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-5">
           <div>
             <Input 
-              label="Full Name" 
+              label="Họ và tên" 
               value={formData.userName} 
               onChange={e => setFormData({ ...formData, userName: e.target.value })} 
-              placeholder="John Doe" 
+              placeholder="Nguyễn Văn A" 
               required 
             />
             {fieldErrors.UserName && (
@@ -86,7 +86,7 @@ export function RegisterPage() {
                 ))}
               </div>
             )}
-            <p className="mt-1 text-xs text-gray-500">5-50 characters, Vietnamese/English letters, spaces allowed</p>
+            <p className="mt-1 text-xs text-gray-500">5-50 ký tự, chữ cái tiếng Việt/Anh, cho phép khoảng trắng</p>
           </div>
 
           <div>
@@ -95,7 +95,7 @@ export function RegisterPage() {
               type="email" 
               value={formData.email} 
               onChange={e => setFormData({ ...formData, email: e.target.value })} 
-              placeholder="your@email.com" 
+              placeholder="email@example.com" 
               required 
             />
             {fieldErrors.Email && (
@@ -105,12 +105,12 @@ export function RegisterPage() {
                 ))}
               </div>
             )}
-            <p className="mt-1 text-xs text-gray-500">Valid email format required</p>
+            <p className="mt-1 text-xs text-gray-500">Định dạng email hợp lệ</p>
           </div>
 
           <div>
             <Input 
-              label="Phone Number" 
+              label="Số điện thoại" 
               type="tel" 
               value={formData.phoneNumber} 
               onChange={e => setFormData({ ...formData, phoneNumber: e.target.value })} 
@@ -124,15 +124,15 @@ export function RegisterPage() {
                 ))}
               </div>
             )}
-            <p className="mt-1 text-xs text-gray-500">Start with 0, followed by 9-10 digits</p>
+            <p className="mt-1 text-xs text-gray-500">Bắt đầu bằng 0, theo sau là 9-10 chữ số</p>
           </div>
 
           <div>
             <Input 
-              label="Address" 
+              label="Địa chỉ" 
               value={formData.address} 
               onChange={e => setFormData({ ...formData, address: e.target.value })} 
-              placeholder="Your address" 
+              placeholder="Địa chỉ của bạn" 
               required 
             />
             {fieldErrors.Address && (
@@ -142,12 +142,12 @@ export function RegisterPage() {
                 ))}
               </div>
             )}
-            <p className="mt-1 text-xs text-gray-500">Maximum 200 characters</p>
+            <p className="mt-1 text-xs text-gray-500">Tối đa 200 ký tự</p>
           </div>
 
           <div className="relative">
             <Input 
-              label="Password" 
+              label="Mật khẩu" 
               type={showPassword ? 'text' : 'password'} 
               value={formData.password} 
               onChange={e => setFormData({ ...formData, password: e.target.value })} 
@@ -169,7 +169,7 @@ export function RegisterPage() {
               </div>
             )}
             <p className="mt-1 text-xs text-gray-500">
-              Min 8 characters, must include uppercase, lowercase, and digit
+              Tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường và số
             </p>
           </div>
 
@@ -180,18 +180,18 @@ export function RegisterPage() {
           )}
 
           <Button type="submit" variant="primary" size="lg" fullWidth disabled={loading}>
-            {loading ? 'Creating account...' : 'Create Account'}
+            {loading ? 'Đang tạo tài khoản...' : 'Tạo Tài Khoản'}
           </Button>
 
           <div className="text-center space-y-2">
             <p className="text-sm text-gray-600">
-              Already have an account?{' '}
+              Đã có tài khoản?{' '}
               <Link to="/login" className="text-primary-600 font-medium hover:text-primary-700">
-                Sign in
+                Đăng nhập
               </Link>
             </p>
             <Link to="/" className="text-sm text-gray-500 hover:text-gray-700 block">
-              Continue as guest
+              Tiếp tục với tư cách khách
             </Link>
           </div>
         </form>

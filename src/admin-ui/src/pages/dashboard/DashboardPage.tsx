@@ -1,48 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { DollarSign, ShoppingCart, Users, Package, ArrowUpRight } from 'lucide-react';
 import { StatCard } from '../../components/common/StatCard';
 import { Card } from '../../components/common/Card';
-import { Badge } from '../../components/common/Badge';
 import { TopCustomersChart } from '../../components/charts/TopCustomersChart';
 import { ProductSalesMonthlyChart } from '../../components/charts/ProductSalesMonthlyChart';
 import analyticsApi from '../../services/analyticsApi';
-import { mockDashboardStats, mockOrders, mockProducts } from '../../services/mockData';
-import { formatCurrency } from '../../utils/formatters';
-import { ORDER_STATUS } from '../../utils/constants';
 
 export function DashboardPage() {
   const currentYear = new Date().getFullYear();
 
-  // State for analytics data
+  // State for stats
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalProducts, setTotalProducts] = useState(0);
+
+  // State for charts
   const [topCustomers, setTopCustomers] = useState<any[]>([]);
   const [productSalesMonthly, setProductSalesMonthly] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Mock data for other sections (keep for now)
-  const recentOrders = mockOrders.slice(0, 5);
-  // const topProducts = mockProducts.slice(0, 5);
-
   // Fetch analytics data
   useEffect(() => {
     const fetchAnalyticsData = async () => {
+      setLoading(true);
+      setError(null);
+
+      // Fetch stats individually with fallback
       try {
-        setLoading(true);
-        setError(null);
+        const revenueRes = await analyticsApi.getTotalRevenue();
+        setTotalRevenue(revenueRes.data.total);
+      } catch (e) { console.error('Revenue API error:', e); }
 
-        // Fetch top customers
-        const customersResponse = await analyticsApi.getTopCustomers(10);
-        setTopCustomers(customersResponse.data);
+      try {
+        const ordersRes = await analyticsApi.getTotalOrders();
+        setTotalOrders(ordersRes.data.total);
+      } catch (e) { console.error('Orders API error:', e); }
 
-        // Fetch product sales monthly
-        const salesResponse = await analyticsApi.getProductSalesMonthly(currentYear);
-        setProductSalesMonthly(salesResponse.data);
-      } catch (err: any) {
-        console.error('Failed to fetch analytics data:', err);
-        setError('Không thể tải dữ liệu thống kê');
-      } finally {
-        setLoading(false);
+      try {
+        const usersRes = await analyticsApi.getTotalUsers();
+        setTotalUsers(usersRes.data.total);
+      } catch (e) { console.error('Users API error:', e); }
+
+      try {
+        const productsRes = await analyticsApi.getTotalProducts();
+        setTotalProducts(productsRes.data.total);
+      } catch (e) { console.error('Products API error:', e); }
+
+      // Fetch charts data
+      try {
+        const [customersRes, salesRes] = await Promise.all([
+          analyticsApi.getTopCustomers(10),
+          analyticsApi.getProductSalesMonthly(currentYear)
+        ]);
+        setTopCustomers(customersRes.data);
+        setProductSalesMonthly(salesRes.data);
+      } catch (chartsErr) {
+        console.error('Charts API error:', chartsErr);
+        setError('Không thể tải dữ liệu biểu đồ');
       }
+
+      setLoading(false);
     };
 
     fetchAnalyticsData();
@@ -62,32 +81,28 @@ export function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Revenue"
-          value={mockDashboardStats.totalRevenue}
-          change={mockDashboardStats.revenueGrowth}
+          value={totalRevenue}
           icon={DollarSign}
           iconColor="bg-green-500"
           format="currency"
         />
         <StatCard
           title="Total Orders"
-          value={mockDashboardStats.totalOrders}
-          change={mockDashboardStats.ordersGrowth}
+          value={totalOrders}
           icon={ShoppingCart}
           iconColor="bg-blue-500"
           format="number"
         />
         <StatCard
           title="Total Users"
-          value={mockDashboardStats.totalUsers}
-          change={mockDashboardStats.usersGrowth}
+          value={totalUsers}
           icon={Users}
           iconColor="bg-purple-500"
           format="number"
         />
         <StatCard
           title="Total Products"
-          value={mockDashboardStats.totalProducts}
-          change={mockDashboardStats.productsGrowth}
+          value={totalProducts}
           icon={Package}
           iconColor="bg-orange-500"
           format="number"
@@ -113,40 +128,18 @@ export function DashboardPage() {
         </div>
       )}
 
-      {/* Recent Orders & Top Products */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Orders */}
+      {/* Recent Orders */}
+      <div className="grid grid-cols-1 gap-6">
         <Card>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900">Recent Orders</h3>
-            <button className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
+            <a href="/admin/orders" className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
               View All
               <ArrowUpRight className="w-4 h-4" />
-            </button>
+            </a>
           </div>
-          <div className="space-y-4">
-            {recentOrders.map((order) => (
-              <div
-                key={order.id}
-                className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
-              >
-                <div>
-                  {/* <p className="font-medium text-gray-900">{order.orderNumber}</p>
-                  <p className="text-sm text-gray-500">{order.userName}</p> */}
-                </div>
-                <div className="text-right">
-                  {/* <p className="font-semibold text-gray-900">{formatCurrency(order.total)}</p> */}
-                  {/* <Badge variant={ORDER_STATUS[order.status].color as any} size="sm">
-                    {ORDER_STATUS[order.status].label}
-                  </Badge> */}
-                </div>
-              </div>
-            ))}
-          </div>
+          <p className="text-gray-500 text-sm">Xem tất cả đơn hàng tại trang Orders</p>
         </Card>
-
-        {/* Top Products */}
-        
       </div>
     </div>
   );

@@ -8,7 +8,7 @@ import imageApi, { getImageUrl } from '../api/imageApi';
 
 interface CartContextType {
     items: CartItem[];
-    addToCart: (product: Product, quantity?: number) => Promise<boolean>;
+    addToCart: (product: Product, quantity?: number, variantId?: string, variantInfo?: string) => Promise<boolean>;
     removeFromCart: (cartItemId: string) => Promise<void>;
     updateQuantity: (cartItemId: string, quantity: number) => Promise<void>;
     clearCart: () => void;
@@ -73,6 +73,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
         try {
             const response = await cartApi.getCart();
+            console.log('Cart API response:', response.data);
+            console.log('Cart items detail:', JSON.stringify(response.data.items, null, 2));
             const backendItems = response.data.items || [];
 
             // Map dữ liệu Backend -> Frontend
@@ -92,6 +94,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                     return {
                         id: item.id.toString(),
                         quantity: item.quantity,
+                        variantId: item.variantId || undefined,
+                        variantInfo: item.variantInfo || undefined,
                         product: {
                             id: item.productId.toString(),
                             name: item.productName,
@@ -120,11 +124,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         fetchCart();
     }, [isAuthenticated]);
 
-    const addToCart = async (product: Product, quantity: number = 1): Promise<boolean> => {
+    const addToCart = async (product: Product, quantity: number = 1, variantId?: string, variantInfo?: string): Promise<boolean> => {
         if (!isAuthenticated) return false;
 
         try {
-            await cartApi.addToCart(product.id, quantity);
+            console.log('Adding to cart:', { productId: product.id, quantity, variantId, variantInfo });
+            const response = await cartApi.addToCart(product.id, quantity, variantId);
+            console.log('Add to cart response:', response.data);
             await fetchCart();
             setIsCartOpen(true);
             return true;

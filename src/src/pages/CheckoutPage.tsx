@@ -79,7 +79,8 @@ export function CheckoutPage() {
         shippingAddress: address,
         items: items.map(item => ({
           productId: parseInt(item.product.id),
-          quantity: item.quantity
+          quantity: item.quantity,
+          variantId: item.variantId
         }))
       };
 
@@ -194,8 +195,13 @@ export function CheckoutPage() {
             <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
                 {items.map(item => (
                     <div key={item.id} className="flex justify-between text-sm">
-                        <span>{item.product.name} (x{item.quantity})</span>
-                        <span className="font-medium">{formatCurrency(item.product.price * item.quantity)}</span>
+                        <div className="flex-1 min-w-0 mr-2">
+                            <span className="block truncate">{item.product.name} (x{item.quantity})</span>
+                            {item.variantInfo && (
+                                <span className="text-xs text-gray-500">{item.variantInfo}</span>
+                            )}
+                        </div>
+                        <span className="font-medium flex-shrink-0">{formatCurrency(item.product.price * item.quantity)}</span>
                     </div>
                 ))}
             </div>

@@ -3,11 +3,12 @@ import axiosClient from "./axiosClient";
 const cartApi = {
     getCart: () => axiosClient.get("/cart"),
 
-    addToCart: (productId: number | string, quantity: number) => {
+    addToCart: (productId: number | string, quantity: number, variantId?: string) => {
         return axiosClient.post("/cart", null, {
             params: {
                 productId: productId,
-                quantity: quantity
+                quantity: quantity,
+                variantId: variantId
             }
         });
     },

@@ -12,20 +12,40 @@ export interface Product {
   reviewCount: number;
   soldCount: number;
   
-  // ✅ STOCK MANAGEMENT - Các field mới
+  // ✅ STOCK MANAGEMENT
   stock: number;
   isAvailable: boolean;
   isLowStock?: boolean;
   isOutOfStock?: boolean;
   lowStockThreshold?: number;
   
+  // ✅ VARIANTS
+  variants?: ProductVariants;
+  
   specifications?: Record<string, string>;
+}
+
+// ✅ VARIANT TYPES
+export interface ProductVariantOption {
+  id: string;
+  color?: string;
+  size?: string;
+  stock: number;
+  priceAdjustment: number;
+  sku?: string;
+}
+
+export interface ProductVariants {
+  hasVariants: boolean;
+  options: ProductVariantOption[];
 }
 
 export interface CartItem {
   id: string;
   product: Product;
   quantity: number;
+  variantId?: string;
+  variantInfo?: string;
 }
 
 export interface Category {
@@ -95,6 +115,7 @@ export interface OrderItem {
 export interface OrderItemRequest {
   productId: number;
   quantity: number;
+  variantId?: string;
 }
 
 export interface OrderRequest {

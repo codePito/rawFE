@@ -40,6 +40,7 @@ export function CategoriesPage() {
                 name: c.name || 'Unnamed',
                 slug: c.slug || c.name.toLowerCase().replace(/\s+/g, '-'),
                 icon: c.icon || '📦',
+                imageUrl: c.imageUrl || null,
                 productCount: c.productCount || c.products?.length || 0,
                 status: (c.status || 'active') as any,
                 createdAt: c.createdAt ? new Date(c.createdAt) : new Date(),
@@ -101,7 +102,18 @@ export function CategoriesPage() {
             key: 'icon', label: 'Category',
             render: (c: Category) => (
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary-50 rounded-lg flex items-center justify-center text-2xl">{c.icon}</div>
+                    {c.imageUrl ? (
+                        <img 
+                            src={c.imageUrl} 
+                            alt={c.name}
+                            className="w-12 h-12 rounded-lg object-cover"
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48?text=No+Image';
+                            }}
+                        />
+                    ) : (
+                        <div className="w-12 h-12 bg-primary-50 rounded-lg flex items-center justify-center text-2xl">{c.icon}</div>
+                    )}
                     <div><p className="font-medium text-gray-900">{c.name}</p><p className="text-sm text-gray-500">ID: {c.id}</p></div>
                 </div>
             ),

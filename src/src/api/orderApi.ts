@@ -12,6 +12,8 @@ export interface OrderItemResponse {
     unitPrice: number;
     quantity: number;
     total: number;
+    variantId?: string;
+    variantInfo?: string;
 }
 
 export interface OrderResponse {
@@ -22,6 +24,7 @@ export interface OrderResponse {
     currency: string;
     shippingAddress?: string;
     status: OrderStatus;
+    paymentExpiry?: string;
     items: OrderItemResponse[];
 }
 
@@ -54,7 +57,7 @@ export const OrderStatusVariant: Record<number, 'primary' | 'success' | 'danger'
 
 export interface OrderRequest {
     userId: number;
-    items: { productId: number; quantity: number }[];
+    items: { productId: number; quantity: number; variantId?: string }[];
     currency: string;
 }
 

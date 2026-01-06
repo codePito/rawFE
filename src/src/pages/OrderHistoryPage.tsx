@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Package, ChevronRight, ShoppingBag, AlertCircle } from 'lucide-react';
+import { Package, ChevronRight, ShoppingBag, AlertCircle, RefreshCw, Clock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import orderApi, { OrderResponse, OrderStatusText, OrderStatusVariant } from '../api/orderApi';
+import orderApi, { OrderResponse, OrderStatusText, OrderStatusVariant, OrderStatus } from '../api/orderApi';
+import paymentApi from '../api/paymentApi';
 import { formatCurrency } from '../utils/formatters';
 
 export function OrderHistoryPage() {
@@ -11,6 +12,7 @@ export function OrderHistoryPage() {
     const [orders, setOrders] = useState<OrderResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [retryingOrderId, setRetryingOrderId] = useState<number | null>(null);
 
     // Redirect nếu chưa đăng nhập
     useEffect(() => {
@@ -84,6 +86,50 @@ export function OrderHistoryPage() {
         return styles[variant];
     };
 
+    // Handle retry payment
+    const handleRetryPayment = async (orderId: number) => {
+        try {
+            setRetryingOrderId(orderId);
+            
+            // Lấy payment của order
+            const paymentsRes = await paymentApi.getByOrderId(orderId);
+            const payments = paymentsRes.data;
+            
+            console.log('Payments response:', payments);
+            
+            if (!payments || payments.length === 0) {
+                alert('Không tìm thấy thông tin thanh toán');
+                return;
+            }
+
+            // Lấy payment mới nhất
+            const latestPayment = Array.isArray(payments) 
+                ? payments[payments.length - 1] 
+                : payments;
+
+            console.log('Latest payment:', latestPayment);
+
+            // Gọi retry
+            const res = await paymentApi.retryPayment(latestPayment.id);
+            
+            console.log('Retry response:', res.data);
+            
+            // Redirect đến trang thanh toán MoMo
+            const payUrl = res.data?.payUrl || res.data?.PayUrl;
+            if (payUrl) {
+                window.location.href = payUrl;
+            } else {
+                console.error('No payUrl in response:', res.data);
+                alert('Không thể tạo link thanh toán. Vui lòng thử lại.');
+            }
+        } catch (err: any) {
+            console.error('Retry payment failed:', err);
+            alert(err?.response?.data?.message || 'Thanh toán lại thất bại. Vui lòng thử lại.');
+        } finally {
+            setRetryingOrderId(null);
+        }
+    };
+
     // Loading state
     if (loading) {
         return (
@@ -144,6 +190,8 @@ export function OrderHistoryPage() {
                                 order={order}
                                 formatDate={formatDate}
                                 getStatusStyle={getStatusStyle}
+                                onRetryPayment={handleRetryPayment}
+                                isRetrying={retryingOrderId === order.id}
                             />
                         ))}
                     </div>
@@ -160,15 +208,49 @@ interface OrderCardProps {
     order: OrderResponse;
     formatDate: (date: string) => string;
     getStatusStyle: (status: number) => string;
+    onRetryPayment: (orderId: number) => void;
+    isRetrying: boolean;
 }
 
-function OrderCard({ order, formatDate, getStatusStyle }: OrderCardProps) {
+function OrderCard({ order, formatDate, getStatusStyle, onRetryPayment, isRetrying }: OrderCardProps) {
     const [expanded, setExpanded] = useState(false);
+    const [timeRemaining, setTimeRemaining] = useState<{ minutes: number; seconds: number } | null>(null);
 
     // Xử lý status có thể là string hoặc number
     const statusNum = typeof order.status === 'string' 
         ? parseInt(order.status) || 0 
         : order.status;
+
+    // Tính thời gian còn lại
+    useEffect(() => {
+        if (statusNum !== OrderStatus.PaymentPending || !order.paymentExpiry) {
+            setTimeRemaining(null);
+            return;
+        }
+
+        const calculateTimeRemaining = () => {
+            const expiry = new Date(order.paymentExpiry!).getTime();
+            const now = Date.now();
+            const diff = expiry - now;
+
+            if (diff <= 0) {
+                setTimeRemaining(null);
+                return;
+            }
+
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            setTimeRemaining({ minutes, seconds });
+        };
+
+        calculateTimeRemaining();
+        const interval = setInterval(calculateTimeRemaining, 1000);
+
+        return () => clearInterval(interval);
+    }, [order.paymentExpiry, statusNum]);
+
+    // Cho phép retry khi status là PaymentPending và còn thời gian
+    const canRetry = statusNum === OrderStatus.PaymentPending && timeRemaining !== null;
 
     return (
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -241,6 +323,11 @@ function OrderCard({ order, formatDate, getStatusStyle }: OrderCardProps) {
                                         <p className="font-medium text-gray-900">
                                             {item.productName}
                                         </p>
+                                        {item.variantInfo && (
+                                            <p className="text-xs text-gray-500">
+                                                {item.variantInfo}
+                                            </p>
+                                        )}
                                         <p className="text-sm text-gray-500">
                                             {formatCurrency(item.unitPrice)} × {item.quantity}
                                         </p>
@@ -260,6 +347,42 @@ function OrderCard({ order, formatDate, getStatusStyle }: OrderCardProps) {
                             {formatCurrency(order.totalAmount)}
                         </span>
                     </div>
+
+                    {/* Retry Payment Button */}
+                    {canRetry && (
+                        <div className="mt-4 pt-4 border-t">
+                            {timeRemaining && (
+                                <div className="mb-3 p-3 bg-orange-50 border border-orange-200 rounded-lg flex items-center text-orange-700">
+                                    <Clock className="w-5 h-5 mr-2 flex-shrink-0" />
+                                    <span className="text-sm">
+                                        Còn <span className="font-bold">{timeRemaining.minutes}</span> phút{' '}
+                                        <span className="font-bold">{timeRemaining.seconds}</span> giây để thanh toán
+                                    </span>
+                                </div>
+                            )}
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onRetryPayment(order.id);
+                                }}
+                                disabled={isRetrying}
+                                className="w-full py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                <RefreshCw className={`w-5 h-5 ${isRetrying ? 'animate-spin' : ''}`} />
+                                {isRetrying ? 'Đang xử lý...' : 'Thanh toán lại'}
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Hết hạn thanh toán */}
+                    {statusNum === OrderStatus.PaymentPending && !timeRemaining && (
+                        <div className="mt-4 pt-4 border-t">
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center text-red-700">
+                                <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0" />
+                                <span className="text-sm">Đã hết thời gian thanh toán. Đơn hàng sẽ được hủy tự động.</span>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

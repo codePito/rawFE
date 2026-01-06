@@ -43,8 +43,8 @@ export function LoginPage() {
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
             <ShoppingBag className="w-8 h-8 text-primary-600" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">Welcome Back!</h1>
-          <p className="text-primary-100">Sign in to continue</p>
+          <h1 className="text-3xl font-bold mb-2">Chào Mừng Trở Lại!</h1>
+          <p className="text-primary-100">Đăng nhập để tiếp tục</p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
@@ -58,10 +58,10 @@ export function LoginPage() {
           <Input label="Email" type="email" value={formData.email} onChange={e => setFormData({
           ...formData,
           email: e.target.value
-        })} placeholder="your@email.com" required />
+        })} placeholder="email@example.com" required />
 
           <div className="relative">
-            <Input label="Password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={e => setFormData({
+            <Input label="Mật khẩu" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={e => setFormData({
             ...formData,
             password: e.target.value
           })} placeholder="••••••••" required />
@@ -75,18 +75,18 @@ export function LoginPage() {
             </div>}
 
           <Button type="submit" variant="primary" size="lg" fullWidth loading={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Đang đăng nhập...' : 'Đăng Nhập'}
           </Button>
 
           <div className="text-center space-y-2">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Chưa có tài khoản?{' '}
               <Link to="/register" className="text-primary-600 font-medium hover:text-primary-700">
-                Sign up
+                Đăng ký
               </Link>
             </p>
             <Link to="/" className="text-sm text-gray-500 hover:text-gray-700 block">
-              Continue as guest
+              Tiếp tục với tư cách khách
             </Link>
           </div>
         </form>

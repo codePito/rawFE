@@ -38,16 +38,16 @@ export function SearchPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Search Results
+              Kết quả tìm kiếm
             </h1>
             <p className="text-gray-600">
-              {results.length} results for "{query}"
+              {results.length} kết quả cho "{query}"
             </p>
           </div>
           <SortFilter value={sortBy} onChange={setSortBy} />
         </div>
 
-        <ProductGrid products={results} emptyMessage={`No products found for "${query}"`} />
+        <ProductGrid products={results} emptyMessage={`Không tìm thấy sản phẩm cho "${query}"`} />
       </div>
     </div>;
 }

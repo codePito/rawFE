@@ -63,6 +63,26 @@ const analyticsApi = {
     return apiClient.get<ProductSalesMonthlyStats[]>(
       `/orders/stats/products-monthly?year=${currentYear}`
     );
+  },
+
+  // Lấy tổng doanh thu
+  getTotalRevenue: () => {
+    return apiClient.get<{ total: number }>('/order/revenue');
+  },
+
+  // Lấy tổng số đơn hàng
+  getTotalOrders: () => {
+    return apiClient.get<{ total: number }>('/order/count');
+  },
+
+  // Lấy tổng số users
+  getTotalUsers: () => {
+    return apiClient.get<{ total: number }>('/user/count');
+  },
+
+  // Lấy tổng số products
+  getTotalProducts: () => {
+    return apiClient.get<{ total: number }>('/product/count');
   }
 };
 

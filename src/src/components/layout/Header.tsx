@@ -28,7 +28,7 @@ export function Header() {
       <div className="bg-primary-500 text-white py-2">
         <div className="max-w-7xl mx-auto px-4">
           <p className="text-xs sm:text-sm text-center">
-            🎉 Free shipping on orders over $50!
+            🎉 Miễn phí vận chuyển cho đơn hàng trên 500.000đ!
           </p>
         </div>
       </div>
@@ -81,7 +81,7 @@ export function Header() {
             ) : (
               <Link to="/login" className="hidden md:flex items-center gap-2 px-4 py-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors font-medium">
                 <User className="w-5 h-5" />
-                Sign In
+                Đăng nhập
               </Link>
             )}
 
@@ -123,7 +123,7 @@ export function Header() {
                     className="flex items-center gap-3 px-4 py-3 bg-primary-50 text-primary-600 rounded-lg hover:bg-primary-100"
                   >
                     <Shield className="w-5 h-5" />
-                    <span className="font-medium">Admin Dashboard</span>
+                    <span className="font-medium">Quản trị</span>
                   </Link>
                 )}
                 <button 
@@ -131,7 +131,7 @@ export function Header() {
                   className="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg hover:bg-gray-100 text-left"
                 >
                   <LogOut className="w-5 h-5" />
-                  <span className="font-medium">Logout</span>
+                  <span className="font-medium">Đăng xuất</span>
                 </button>
               </>
             ) : (
@@ -141,7 +141,7 @@ export function Header() {
                 className="flex items-center gap-3 px-4 py-3 bg-primary-50 text-primary-600 rounded-lg hover:bg-primary-100"
               >
                 <User className="w-5 h-5" />
-                <span className="font-medium">Sign In</span>
+                <span className="font-medium">Đăng nhập</span>
               </Link>
             )}
           </div>

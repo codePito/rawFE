@@ -7,7 +7,7 @@ interface ProductGridProps {
 }
 export function ProductGrid({
   products,
-  emptyMessage = 'No products found'
+  emptyMessage = 'Không tìm thấy sản phẩm'
 }: ProductGridProps) {
   if (products.length === 0) {
     return <div className="text-center py-16">

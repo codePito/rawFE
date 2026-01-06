@@ -43,6 +43,14 @@ export function CartItem({ item }: CartItemProps) {
                 <h3 className="font-medium text-gray-900 text-sm mb-1 line-clamp-2">
                     {product.name}
                 </h3>
+                
+                {/* Variant Info */}
+                {item.variantInfo && (
+                    <p className="text-xs text-gray-500 mb-1">
+                        {item.variantInfo}
+                    </p>
+                )}
+                
                 <p className="text-primary-600 font-bold mb-2">
                     {formatCurrency(product.price)}
                 </p>

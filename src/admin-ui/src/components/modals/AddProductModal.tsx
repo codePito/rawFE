@@ -3,9 +3,10 @@ import { Modal } from '../common/Modal';
 import { Input } from '../common/Input';
 import { Textarea } from '../common/Textarea';
 import { Select } from '../common/Select';
+import { VariantBuilder } from '../common/VariantBuilder';
 import categoryApi from '../../../../src/api/categoryApi';
-import { Category } from '../../types';
-import { Loader2 } from 'lucide-react';
+import { Category, ProductVariantOption } from '../../types';
+import { Loader2, ToggleLeft, ToggleRight } from 'lucide-react';
 import AdminProductImageManager from '../../pages/products/AdminProductImageManager';
 
 /* ================= BUTTON ================= */
@@ -60,6 +61,8 @@ interface ProductFormData {
   category: string;
   stockQuantity: string;
   lowStockThreshold: string;
+  hasVariants: boolean;
+  variants: ProductVariantOption[];
 }
 
 interface ProductFormErrors {
@@ -81,6 +84,8 @@ export function AddProductModal({ isOpen, onClose, onAdd }: AddProductModalProps
     category: '',
     stockQuantity: '100',
     lowStockThreshold: '5',
+    hasVariants: false,
+    variants: [],
   });
 
   const [errors, setErrors] = useState<ProductFormErrors>({});
@@ -149,11 +154,19 @@ export function AddProductModal({ isOpen, onClose, onAdd }: AddProductModalProps
       e.category = 'Category is required';
     }
     
-    // Stock quantity validation (>= 0)
-    if (formData.stockQuantity === '') {
-      e.stockQuantity = 'Stock quantity is required';
-    } else if (Number(formData.stockQuantity) < 0) {
-      e.stockQuantity = 'Stock quantity cannot be negative';
+    // Stock validation - chỉ validate khi không có variants
+    if (!formData.hasVariants) {
+      if (formData.stockQuantity === '') {
+        e.stockQuantity = 'Stock quantity is required';
+      } else if (Number(formData.stockQuantity) < 0) {
+        e.stockQuantity = 'Stock quantity cannot be negative';
+      }
+    } else {
+      // Validate variants
+      if (formData.variants.length === 0) {
+        alert('Please add at least one variant');
+        return false;
+      }
     }
     
     // Low stock threshold validation (>= 0)
@@ -180,8 +193,16 @@ export function AddProductModal({ isOpen, onClose, onAdd }: AddProductModalProps
       description: formData.description,
       price: Number(formData.price),
       categoryId: formData.category,
-      stockQuantity: Number(formData.stockQuantity),
+      stockQuantity: formData.hasVariants 
+        ? formData.variants.reduce((sum, v) => sum + v.stock, 0)
+        : Number(formData.stockQuantity),
       lowStockThreshold: Number(formData.lowStockThreshold),
+      variants: formData.hasVariants 
+        ? JSON.stringify({
+            hasVariants: true,
+            options: formData.variants,
+          })
+        : null,
     };
 
     try {
@@ -203,6 +224,8 @@ export function AddProductModal({ isOpen, onClose, onAdd }: AddProductModalProps
       category: '',
       stockQuantity: '100',
       lowStockThreshold: '5',
+      hasVariants: false,
+      variants: [],
     });
     setErrors({});
     onClose();
@@ -263,19 +286,21 @@ export function AddProductModal({ isOpen, onClose, onAdd }: AddProductModalProps
             <p className="mt-1 text-xs text-gray-500">Must be greater than 0</p>
           </div>
 
-          <div>
-            <Input
-              label="Stock Quantity"
-              type="number"
-              min="0"
-              value={formData.stockQuantity}
-              onChange={e => setFormData({ ...formData, stockQuantity: e.target.value })}
-              error={errors.stockQuantity}
-              placeholder="100"
-              required
-            />
-            <p className="mt-1 text-xs text-gray-500">Cannot be negative</p>
-          </div>
+          {!formData.hasVariants && (
+            <div>
+              <Input
+                label="Stock Quantity"
+                type="number"
+                min="0"
+                value={formData.stockQuantity}
+                onChange={e => setFormData({ ...formData, stockQuantity: e.target.value })}
+                error={errors.stockQuantity}
+                placeholder="100"
+                required
+              />
+              <p className="mt-1 text-xs text-gray-500">Cannot be negative</p>
+            </div>
+          )}
 
           <div>
             <Input
@@ -301,6 +326,35 @@ export function AddProductModal({ isOpen, onClose, onAdd }: AddProductModalProps
             error={errors.category}
             required
           />
+
+          {/* Variant Toggle */}
+          <div className="border-t pt-4">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="font-medium text-gray-900">Product Variants</p>
+                <p className="text-sm text-gray-500">Enable if product has multiple options (color, size, etc.)</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, hasVariants: !formData.hasVariants, variants: [] })}
+                className="flex items-center gap-2 text-primary-600"
+              >
+                {formData.hasVariants ? (
+                  <ToggleRight className="w-8 h-8" />
+                ) : (
+                  <ToggleLeft className="w-8 h-8 text-gray-400" />
+                )}
+              </button>
+            </div>
+
+            {formData.hasVariants && (
+              <VariantBuilder
+                variants={formData.variants}
+                onChange={(variants) => setFormData({ ...formData, variants })}
+                basePrice={Number(formData.price) || 0}
+              />
+            )}
+          </div>
 
           <div className="flex gap-3 pt-4 border-t">
             <Button type="button" variant="secondary" onClick={handleClose} fullWidth>

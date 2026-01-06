@@ -139,4 +139,20 @@ export interface ProductRequest {
   stockQuantity: number;
   lowStockThreshold?: number;
   images?: ImageRequest[];
+  variants?: string; // JSON string của ProductVariants
+}
+
+// ✅ VARIANT TYPES
+export interface ProductVariantOption {
+  id: string;
+  color?: string;
+  size?: string;
+  stock: number;
+  priceAdjustment: number;
+  sku?: string;
+}
+
+export interface ProductVariants {
+  hasVariants: boolean;
+  options: ProductVariantOption[];
 }

@@ -1,5 +1,5 @@
 import React, { useState, createContext, useContext, useEffect } from 'react';
-import { Product, FilterOptions } from '../types';
+import { Product, FilterOptions, ProductVariants } from '../types';
 import productApi from '../api/productApi';
 
 interface ProductContextType {
@@ -60,6 +60,28 @@ export function ProductProvider({ children }: { children: React.ReactNode }) {
         rating: p.rating || 5,
         reviewCount: p.reviewCount || 0,
         soldCount: p.soldCount || 0,
+        
+        // ✅ VARIANTS - Parse with case handling
+        variants: (() => {
+          if (!p.variants) return undefined;
+          try {
+            const parsed = typeof p.variants === 'string' ? JSON.parse(p.variants) : p.variants;
+            // Normalize property names (handle both camelCase and PascalCase from backend)
+            return {
+              hasVariants: parsed.hasVariants ?? parsed.HasVariants ?? false,
+              options: (parsed.options ?? parsed.Options ?? []).map((opt: any) => ({
+                id: opt.id ?? opt.Id ?? '',
+                color: opt.color ?? opt.Color ?? undefined,
+                size: opt.size ?? opt.Size ?? undefined,
+                stock: opt.stock ?? opt.Stock ?? 0,
+                priceAdjustment: opt.priceAdjustment ?? opt.PriceAdjustment ?? 0,
+                sku: opt.sku ?? opt.Sku ?? undefined,
+              }))
+            } as ProductVariants;
+          } catch {
+            return undefined;
+          }
+        })(),
         
         specifications: p.specifications || {}
       }));

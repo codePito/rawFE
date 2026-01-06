@@ -23,12 +23,12 @@ export function ProductCard({ product }: ProductCardProps) {
     
     // Kiểm tra stock trước khi thêm vào giỏ
     if (product.isOutOfStock) {
-      alert('This product is currently out of stock');
+      alert('Sản phẩm hiện đã hết hàng');
       return;
     }
     
     if (!product.isAvailable) {
-      alert('This product is currently unavailable');
+      alert('Sản phẩm hiện không khả dụng');
       return;
     }
     
@@ -57,10 +57,10 @@ export function ProductCard({ product }: ProductCardProps) {
             <Badge variant="danger">-{product.discount}%</Badge>
           )}
           {product.isOutOfStock && (
-            <Badge variant="danger">Out of Stock</Badge>
+            <Badge variant="danger">Hết hàng</Badge>
           )}
           {product.isLowStock && !product.isOutOfStock && (
-            <Badge variant="warning">Low Stock</Badge>
+            <Badge variant="warning">Sắp hết</Badge>
           )}
         </div>
       </div>
@@ -91,11 +91,11 @@ export function ProductCard({ product }: ProductCardProps) {
 
         <div className="flex items-center justify-between mb-3 sm:mb-4 text-xs">
           <p className="text-gray-500">
-            {formatNumber(product.soldCount)} sold
+            Đã bán {formatNumber(product.soldCount)}
           </p>
           {!product.isOutOfStock && product.stock <= 10 && (
             <p className="text-primary-600 font-medium">
-              {product.stock} left
+              Còn {product.stock}
             </p>
           )}
         </div>
@@ -109,7 +109,7 @@ export function ProductCard({ product }: ProductCardProps) {
           className="mt-auto text-xs sm:text-sm"
         >
           <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2" />
-          {product.isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+          {product.isOutOfStock ? 'Hết Hàng' : 'Thêm Vào Giỏ'}
         </Button>
       </div>
     </Link>

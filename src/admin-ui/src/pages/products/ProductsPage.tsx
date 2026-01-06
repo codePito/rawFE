@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Plus, Search, Filter, Trash2, Edit, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Plus, Search, Trash2, Edit, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { Table } from '../../components/common/Table';
@@ -8,6 +8,7 @@ import { Pagination } from '../../components/common/Pagination';
 import { AddProductModal } from '../../components/modals/AddProductModal';
 import { EditProductModal } from '../../components/modals/EditProductModal';
 import productApi from '../../../../src/api/productApi';
+import categoryApi from '../../../../src/api/categoryApi';
 import { Product } from '../../types';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { PRODUCT_STATUS } from '../../utils/constants';
@@ -20,12 +21,16 @@ export function ProductsPage() {
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState<string>('');
     const itemsPerPage = 10;
 
-    // Filter products
-    const filteredProducts = products.filter(product =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    // Filter products by search and category
+    const filteredProducts = products.filter(product => {
+        const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesCategory = !selectedCategory || product.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+    });
 
     // Pagination
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -78,7 +83,20 @@ export function ProductsPage() {
 
     useEffect(() => {
         fetchProducts();
+        fetchCategories();
     }, [fetchProducts]);
+
+    // Fetch categories
+    const fetchCategories = async () => {
+        try {
+            const response = await categoryApi.getAll();
+            const data = response.data;
+            const list = Array.isArray(data) ? data : (data.result || []);
+            setCategories(list.map((c: any) => ({ id: c.id.toString(), name: c.name })));
+        } catch (error) {
+            console.error('Failed to fetch categories:', error);
+        }
+    };
 
     // ═══════════════════════════════════════════════════════════════
     // ADD PRODUCT
@@ -312,17 +330,26 @@ export function ProductsPage() {
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Search products..."
+                                placeholder="Tìm kiếm sản phẩm..."
                                 value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
                             />
                         </div>
                     </div>
-                    <Button variant="secondary">
-                        <Filter className="w-5 h-5 mr-2" />
-                        Filters
-                    </Button>
+                    <select
+                        value={selectedCategory}
+                        onChange={e => {
+                            setSelectedCategory(e.target.value);
+                            setCurrentPage(1);
+                        }}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none bg-white min-w-[180px]"
+                    >
+                        <option value="">Tất cả danh mục</option>
+                        {categories.map(cat => (
+                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                    </select>
                 </div>
             </Card>
 

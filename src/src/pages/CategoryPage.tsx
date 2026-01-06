@@ -35,7 +35,7 @@ export function CategoryPage() {
               {/* {category?.icon} {category?.name} */}
             </h1>
             <p className="text-gray-600">
-              {filteredProducts.length} products found
+              {filteredProducts.length} sản phẩm
             </p>
           </div>
           <SortFilter value={sortBy} onChange={setSortBy} />

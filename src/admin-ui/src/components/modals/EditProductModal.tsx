@@ -3,9 +3,11 @@ import { Modal } from '../common/Modal';
 import { Input } from '../common/Input';
 import { Textarea } from '../common/Textarea';
 import { Select } from '../common/Select';
-import { Loader2 } from 'lucide-react';
+import { VariantBuilder } from '../common/VariantBuilder';
+import { Loader2, ToggleLeft, ToggleRight } from 'lucide-react';
 import categoryApi from '../../../../src/api/categoryApi';
 import AdminProductImageManager from '../../pages/products/AdminProductImageManager';
+import { ProductVariantOption } from '../../types';
 
 // ═══════════════════════════════════════════════════════════════
 // BUTTON COMPONENT
@@ -60,6 +62,7 @@ interface Product {
     category: string;
     stock: number;
     lowStockThreshold?: number;
+    variants?: string | null;
 }
 
 interface EditProductModalProps {
@@ -76,6 +79,8 @@ interface ProductFormData {
     category: string;
     stockQuantity: string;
     lowStockThreshold: string;
+    hasVariants: boolean;
+    variants: ProductVariantOption[];
 }
 
 interface ProductFormErrors {
@@ -98,15 +103,32 @@ export function EditProductModal({ isOpen, onClose, product, onUpdate }: EditPro
         category: '',
         stockQuantity: '0',
         lowStockThreshold: '5',
+        hasVariants: false,
+        variants: [],
     });
     const [errors, setErrors] = useState<ProductFormErrors>({});
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
-    const [activeTab, setActiveTab] = useState<'info' | 'images'>('info');
+    const [activeTab, setActiveTab] = useState<'info' | 'variants' | 'images'>('info');
+
+    // Parse variants from product
+    const parseVariants = (variantsStr: string | null | undefined): { hasVariants: boolean; variants: ProductVariantOption[] } => {
+        if (!variantsStr) return { hasVariants: false, variants: [] };
+        try {
+            const parsed = JSON.parse(variantsStr);
+            return {
+                hasVariants: parsed.hasVariants || false,
+                variants: parsed.options || [],
+            };
+        } catch {
+            return { hasVariants: false, variants: [] };
+        }
+    };
 
     // Load product data when modal opens
     useEffect(() => {
         if (product && isOpen) {
+            const { hasVariants, variants } = parseVariants(product.variants);
             setFormData({
                 name: product.name || '',
                 description: product.description || '',
@@ -114,6 +136,8 @@ export function EditProductModal({ isOpen, onClose, product, onUpdate }: EditPro
                 category: product.category || '',
                 stockQuantity: product.stock?.toString() || '0',
                 lowStockThreshold: product.lowStockThreshold?.toString() || '5',
+                hasVariants,
+                variants,
             });
             setActiveTab('info');
         }
@@ -146,7 +170,12 @@ export function EditProductModal({ isOpen, onClose, product, onUpdate }: EditPro
         if (!formData.description.trim()) e.description = 'Description is required';
         if (!formData.price || Number(formData.price) <= 0) e.price = 'Price must be greater than 0';
         if (!formData.category) e.category = 'Category is required';
-        if (Number(formData.stockQuantity) < 0) e.stockQuantity = 'Stock cannot be negative';
+        
+        // Stock validation - chỉ validate khi không có variants
+        if (!formData.hasVariants) {
+            if (Number(formData.stockQuantity) < 0) e.stockQuantity = 'Stock cannot be negative';
+        }
+        
         if (Number(formData.lowStockThreshold) < 0) e.lowStockThreshold = 'Threshold cannot be negative';
 
         setErrors(e);
@@ -166,8 +195,16 @@ export function EditProductModal({ isOpen, onClose, product, onUpdate }: EditPro
                 description: formData.description,
                 price: Number(formData.price),
                 categoryId: Number(formData.category),
-                stockQuantity: Number(formData.stockQuantity),
+                stockQuantity: formData.hasVariants
+                    ? formData.variants.reduce((sum, v) => sum + v.stock, 0)
+                    : Number(formData.stockQuantity),
                 lowStockThreshold: Number(formData.lowStockThreshold),
+                variants: formData.hasVariants
+                    ? JSON.stringify({
+                        hasVariants: true,
+                        options: formData.variants,
+                    })
+                    : null,
             };
 
             const success = await onUpdate(product.id, payload);
@@ -188,6 +225,8 @@ export function EditProductModal({ isOpen, onClose, product, onUpdate }: EditPro
             category: '',
             stockQuantity: '0',
             lowStockThreshold: '5',
+            hasVariants: false,
+            variants: [],
         });
         setErrors({});
         setActiveTab('info');
@@ -215,6 +254,17 @@ export function EditProductModal({ isOpen, onClose, product, onUpdate }: EditPro
                     }`}
                 >
                     Product Info
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setActiveTab('variants')}
+                    className={`px-4 py-2 font-medium transition-colors ${
+                        activeTab === 'variants'
+                            ? 'text-primary-600 border-b-2 border-primary-600'
+                            : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                >
+                    Variants
                 </button>
                 <button
                     type="button"
@@ -277,6 +327,7 @@ export function EditProductModal({ isOpen, onClose, product, onUpdate }: EditPro
                             onChange={e => setFormData({ ...formData, stockQuantity: e.target.value })}
                             error={errors.stockQuantity}
                             required
+                            disabled={formData.hasVariants}
                         />
 
                         <Input
@@ -288,6 +339,65 @@ export function EditProductModal({ isOpen, onClose, product, onUpdate }: EditPro
                             required
                         />
                     </div>
+
+                    {formData.hasVariants && (
+                        <p className="text-sm text-amber-600 bg-amber-50 p-2 rounded">
+                            Stock is managed by variants. Go to Variants tab to edit.
+                        </p>
+                    )}
+
+                    <div className="flex gap-3 pt-4 border-t">
+                        <Button type="button" variant="secondary" onClick={handleClose} fullWidth>
+                            Cancel
+                        </Button>
+                        <Button type="submit" loading={loading} fullWidth>
+                            Save Changes
+                        </Button>
+                    </div>
+                </form>
+            ) : activeTab === 'variants' ? (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Variant Toggle */}
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p className="font-medium text-gray-900">Enable Variants</p>
+                            <p className="text-sm text-gray-500">Product has multiple options (color, size, etc.)</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setFormData({ 
+                                ...formData, 
+                                hasVariants: !formData.hasVariants,
+                                variants: !formData.hasVariants ? formData.variants : []
+                            })}
+                            className="flex items-center gap-2 text-primary-600"
+                        >
+                            {formData.hasVariants ? (
+                                <ToggleRight className="w-10 h-10" />
+                            ) : (
+                                <ToggleLeft className="w-10 h-10 text-gray-400" />
+                            )}
+                        </button>
+                    </div>
+
+                    {formData.hasVariants ? (
+                        <VariantBuilder
+                            variants={formData.variants}
+                            onChange={(variants) => {
+                                const totalStock = variants.reduce((sum, v) => sum + v.stock, 0);
+                                setFormData({ 
+                                    ...formData, 
+                                    variants,
+                                    stockQuantity: totalStock.toString()
+                                });
+                            }}
+                            basePrice={Number(formData.price) || 0}
+                        />
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            <p>Enable variants to add product options like color, size, etc.</p>
+                        </div>
+                    )}
 
                     <div className="flex gap-3 pt-4 border-t">
                         <Button type="button" variant="secondary" onClick={handleClose} fullWidth>

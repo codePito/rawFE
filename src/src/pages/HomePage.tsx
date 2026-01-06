@@ -27,14 +27,13 @@ export function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="max-w-2xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Shop Smarter, Live Better
+              Mua Sắm Thông Minh, Sống Tốt Hơn
             </h1>
             <p className="text-xl mb-8 text-primary-50">
-              Discover amazing deals on quality products. Free shipping on
-              orders over $50!
+              Khám phá những ưu đãi tuyệt vời cho sản phẩm chất lượng. Miễn phí vận chuyển cho đơn hàng trên 500.000đ!
             </p>
             <Link to="/category/electronics" className="inline-flex items-center gap-2 bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors">
-              Shop Now
+              Mua Ngay
               <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
@@ -50,8 +49,8 @@ export function HomePage() {
                 <Truck className="w-6 h-6 text-primary-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Free Shipping</h3>
-                <p className="text-sm text-gray-600">On orders over $50</p>
+                <h3 className="font-semibold text-gray-900">Miễn Phí Vận Chuyển</h3>
+                <p className="text-sm text-gray-600">Cho đơn hàng trên 500.000đ</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -59,9 +58,9 @@ export function HomePage() {
                 <Shield className="w-6 h-6 text-primary-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Secure Payment</h3>
+                <h3 className="font-semibold text-gray-900">Thanh Toán An Toàn</h3>
                 <p className="text-sm text-gray-600">
-                  100% secure transactions
+                  Giao dịch bảo mật 100%
                 </p>
               </div>
             </div>
@@ -70,9 +69,9 @@ export function HomePage() {
                 <TrendingUp className="w-6 h-6 text-primary-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Best Prices</h3>
+                <h3 className="font-semibold text-gray-900">Giá Tốt Nhất</h3>
                 <p className="text-sm text-gray-600">
-                  Competitive pricing guaranteed
+                  Cam kết giá cạnh tranh
                 </p>
               </div>
             </div>
@@ -87,10 +86,10 @@ export function HomePage() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              All Products
+              Tất Cả Sản Phẩm
             </h2>
             <p className="text-gray-600">
-              Showing {startIndex + 1}-{Math.min(endIndex, products.length)} of {products.length} products
+              Hiển thị {startIndex + 1}-{Math.min(endIndex, products.length)} trong {products.length} sản phẩm
             </p>
           </div>
         </div>
