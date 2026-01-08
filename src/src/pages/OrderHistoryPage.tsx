@@ -221,7 +221,8 @@ function OrderCard({ order, formatDate, getStatusStyle, onRetryPayment, isRetryi
         }
 
         const calculateTimeRemaining = () => {
-            const expiry = new Date(order.paymentExpiry!).getTime();
+            // Backend trả về giờ UTC (trên Azure), cộng 7 tiếng cho VN
+            const expiry = new Date(order.paymentExpiry!).getTime() + (7 * 60 * 60 * 1000);
             const now = Date.now();
             const diff = expiry - now;
 
