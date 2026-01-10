@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Filter, Eye, RefreshCw, Package, AlertCircle } from 'lucide-react';
+import { Filter, Eye, RefreshCw, Package, AlertCircle } from 'lucide-react';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
@@ -20,7 +20,6 @@ export function OrdersPage() {
     const [filteredOrders, setFilteredOrders] = useState<AdminOrderResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<number | 'all'>('all');
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -76,19 +75,9 @@ export function OrdersPage() {
             result = result.filter(o => o.status === statusFilter);
         }
 
-        // Search by order ID, user name, email
-        if (searchTerm.trim()) {
-            const term = searchTerm.toLowerCase();
-            result = result.filter(o =>
-                o.id.toString().includes(term) ||
-                o.userName?.toLowerCase().includes(term) ||
-                o.userEmail?.toLowerCase().includes(term)
-            );
-        }
-
         setFilteredOrders(result);
         setCurrentPage(1); // Reset to first page
-    }, [orders, searchTerm, statusFilter]);
+    }, [orders, statusFilter]);
 
     // ═══════════════════════════════════════════════════════════════
     // PAGINATION
@@ -197,35 +186,18 @@ export function OrdersPage() {
 
             {/* Filters */}
             <Card>
-                <div className="flex flex-col sm:flex-row gap-4">
-                    {/* Search */}
-                    <div className="flex-1">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Search by Order ID, Customer name, Email..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Status Filter */}
-                    <div className="flex items-center gap-2">
-                        <Filter className="w-5 h-5 text-gray-400" />
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
-                        >
-                            <option value="all">All Status</option>
-                            {Object.entries(OrderStatusText).map(([value, label]) => (
-                                <option key={value} value={value}>{label}</option>
-                            ))}
-                        </select>
-                    </div>
+                <div className="flex items-center gap-2">
+                    <Filter className="w-5 h-5 text-gray-400" />
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                    >
+                        <option value="all">All Status</option>
+                        {Object.entries(OrderStatusText).map(([value, label]) => (
+                            <option key={value} value={value}>{label}</option>
+                        ))}
+                    </select>
                 </div>
             </Card>
 

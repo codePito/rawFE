@@ -15,15 +15,6 @@ export function App() {
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
-          <Route path="/sellers" element={<div className="text-2xl font-bold">
-                Sellers Page (Coming Soon)
-              </div>} />
-          <Route path="/coupons" element={<div className="text-2xl font-bold">
-                Coupons Page (Coming Soon)
-              </div>} />
-          <Route path="/settings" element={<div className="text-2xl font-bold">
-                Settings Page (Coming Soon)
-              </div>} />
         </Routes>
       </AdminLayout>
     </BrowserRouter>;

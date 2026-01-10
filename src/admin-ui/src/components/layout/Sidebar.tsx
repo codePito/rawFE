@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, Users, FolderTree, Store, Ticket, Settings, LogOut, Home } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, FolderTree, LogOut, Home } from 'lucide-react';
 import { useAuth } from '../../../../src/contexts/AuthContext';
 const navigation = [{
   name: 'Dashboard',
@@ -22,18 +22,6 @@ const navigation = [{
   name: 'Categories',
   href: '/admin/categories',
   icon: FolderTree
-}, {
-  name: 'Sellers',
-  href: '/admin/sellers',
-  icon: Store
-}, {
-  name: 'Coupons',
-  href: '/admin/coupons',
-  icon: Ticket
-}, {
-  name: 'Settings',
-  href: '/admin/settings',
-  icon: Settings
 }];
 export function Sidebar() {
   const {
