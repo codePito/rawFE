@@ -116,9 +116,6 @@ export function CategoriesPage() {
             ),
         },
         { key: 'slug', label: 'Slug', render: (c: Category) => <span className="text-gray-600 font-mono text-sm">{c.slug}</span> },
-        { key: 'productCount', label: 'Products', render: (c: Category) => <span className="font-semibold">{c.productCount}</span> },
-        { key: 'status', label: 'Status', render: (c: Category) => <Badge variant={c.status === 'active' ? 'green' : 'gray'}>{c.status}</Badge> },
-        { key: 'createdAt', label: 'Created', render: (c: Category) => <span className="text-sm text-gray-500">{formatDate(c.createdAt)}</span> },
         {
             key: 'actions', label: 'Actions',
             render: (c: Category) => (
