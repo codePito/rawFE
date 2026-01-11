@@ -128,14 +128,9 @@ export function ProductDetailPage() {
                   {formatCurrency(currentPrice)}
                 </span>
                 {product.originalPrice && (
-                  <>
-                    <span className="text-lg sm:text-xl text-gray-400 line-through">
-                      {formatCurrency(product.originalPrice)}
-                    </span>
-                    <Badge variant="danger" size="md">
-                      Giảm {product.discount}%
-                    </Badge>
-                  </>
+                  <span className="text-lg sm:text-xl text-gray-400 line-through">
+                    {formatCurrency(product.originalPrice)}
+                  </span>
                 )}
               </div>
 
