@@ -52,7 +52,7 @@ export function App() {
                       <Route path="profile" element={<UserProfilePage/>}/>
                     </Routes>
                   </UserLayout>} />
-
+{/* run */}
               {/* Admin Routes (Admin Layout + Protected) */}
               <Route path="/admin/*" element={<AdminRoute>
                     <AdminLayout>
